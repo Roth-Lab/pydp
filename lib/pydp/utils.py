@@ -3,10 +3,7 @@ Created on 2012-09-21
 
 @author: Andrew Roth
 '''
-from collections import OrderedDict
 from math import exp, isinf, log
-
-import functools
 
 #=======================================================================================================================
 # Log space functions
@@ -41,32 +38,3 @@ def log_space_normalise(log_X):
         normalised_log_X.append(x - log_norm_const)
     
     return normalised_log_X
-
-#=======================================================================================================================
-# Caching
-#=======================================================================================================================
-class memoized(object):
-    def __init__(self, func, cache_size=10000):
-        self.func = func
-        
-        self.cache = OrderedDict()
-
-        self.cache_size = cache_size        
-    
-    def __call__(self, *args):
-        if args in self.cache:
-            value = self.cache[args]
-        else:
-            value = self.func(*args)
-            
-            self.cache[args] = value
-        
-        if len(self.cache) > self.cache_size:
-            self.cache.popitem(last=False)
-        
-        return value
-
-    def __get__(self, obj, objtype):
-        '''Support instance methods.'''
-        
-        return functools.partial(self.__call__, obj)

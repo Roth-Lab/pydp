@@ -1,6 +1,6 @@
 from pydp.base_measures import BetaBaseMeasure
 
-from pydp.data import BinomialData, BetaPriorData
+from pydp.data import BinomialData, BetaParameter
 
 from pydp.densities import BinomialDensity, BetaBinomialDensity
 
@@ -18,7 +18,7 @@ num_iters = 10000
 n = 1000
 data = []
 
-for i in range(1000):
+for i in range(100):
     x = binomial_rvs(n, 0.5)
     data.append(BinomialData(x, n))
 
@@ -28,7 +28,7 @@ for i in range(50):
 
 alpha = 1
 
-base_measure = BetaBaseMeasure(BetaPriorData(1, 1))
+base_measure = BetaBaseMeasure(BetaParameter(1, 1))
 
 cluster_density = BinomialDensity()
 

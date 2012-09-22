@@ -18,7 +18,7 @@ num_iters = 10000
 n = 1000
 data = []
 
-for i in range(100):
+for i in range(1000):
     x = poisson_rvs(100)
     data.append(PoissonData(x))
 
@@ -42,6 +42,8 @@ concentration_sampler = GammaPriorConcentrationSampler(1, 1)
 
 posterior_density = NegativeBinomialDensity()
 partition_sampler = MarginalGibbsPartitionSampler(base_measure, cluster_density, posterior_density)
+
+#partition_sampler = AuxillaryParameterPartitionSampler(base_measure, cluster_density)
 
 atom_sampler = GammaPoissonGibbsAtomSampler(base_measure, cluster_density)
 
