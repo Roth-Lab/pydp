@@ -40,17 +40,23 @@ class AtomSampler(object):
 #=======================================================================================================================
 # Non-conjugate samplers
 #=======================================================================================================================
-class BaseMeasureAtomSampler(AtomSampler):
+class MetropolisHastingsAtomSampler(AtomSampler):
     '''
-    Update the partition values using a Metropolis-Hastings steps with the base measure as a proposal density.
-    '''
+    Update the atom values using a Metropolis-Hastings steps with a user specified proposal function which takes
+    the previous cell value as an argument.
+    '''          
+    def __init__(self, base_measure, cluster_density, proposal_func):
+        AtomSampler.__init__(self, base_measure, cluster_density)
+        
+        self.proposal_func = proposal_func
+    
     def sample(self, data, partition):
         for cell in partition.cells:
             old_ll = 0
             new_ll = 0
             
             old_param = cell.value
-            new_param = self.base_measure.random()
+            new_param = self.proposal_func(old_param)
             
             for j in cell.items:
                 old_ll += self.cluster_density.log_p(data[j], old_param)
@@ -63,6 +69,15 @@ class BaseMeasureAtomSampler(AtomSampler):
             if log_ratio >= log(u):
                 cell.value = new_param
 
+class BaseMeasureAtomSampler(MetropolisHastingsAtomSampler):
+    '''
+    Update the atom values using a Metropolis-Hastings steps with the base measure as a proposal density.
+    '''
+    def __init__(self, base_measure, cluster_density):
+        AtomSampler.__init__(self, base_measure, cluster_density)
+        
+        self.proposal_func = lambda x: self.base_measure.random()
+    
 #=======================================================================================================================
 # Conjugate samplers
 #=======================================================================================================================
