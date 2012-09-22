@@ -10,6 +10,7 @@ from math import log
 from pydp.rvs import beta_rvs, gamma_rvs, uniform_rvs
 
 from pydp.data import BetaData, GammaData
+from pydp.proposal_functions import BaseMeasureProposalFunction
 
 class AtomSampler(object):
     '''
@@ -56,7 +57,7 @@ class MetropolisHastingsAtomSampler(AtomSampler):
             new_ll = 0
             
             old_param = cell.value
-            new_param = self.proposal_func(old_param)
+            new_param = self.proposal_func.random(old_param)
             
             for j in cell.items:
                 old_ll += self.cluster_density.log_p(data[j], old_param)
@@ -76,7 +77,7 @@ class BaseMeasureAtomSampler(MetropolisHastingsAtomSampler):
     def __init__(self, base_measure, cluster_density):
         AtomSampler.__init__(self, base_measure, cluster_density)
         
-        self.proposal_func = lambda x: self.base_measure.random()
+        self.proposal_func = BaseMeasureProposalFunction()
     
 #=======================================================================================================================
 # Conjugate samplers
