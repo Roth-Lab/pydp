@@ -7,7 +7,6 @@ from __future__ import division
 
 from math import log, lgamma as log_gamma
 
-from pydp.utils import memoized
 from pydp.data import GammaParameter, NegativeBinomialParameter
 
 class Density(object):
@@ -21,7 +20,6 @@ class Density(object):
         pass
 
 class BetaDensity(Density):
-    @memoized
     def log_p(self, data, params):
         x = data.x
         
@@ -31,7 +29,6 @@ class BetaDensity(Density):
         return log_beta_pdf(x, a, b)
 
 class BetaBinomialDensity(Density):
-    @memoized
     def log_p(self, data, params):
         x = data.x
         n = data.n
@@ -41,9 +38,7 @@ class BetaBinomialDensity(Density):
         
         return log_beta_binomial_pdf(x, n, a, b) 
 
-
 class BinomialDensity(Density):
-    @memoized 
     def log_p(self, data, params):
         x = data.x
         n = data.n
@@ -53,7 +48,6 @@ class BinomialDensity(Density):
         return log_binomial_pdf(x, n, p)
 
 class PoissonDensity(Density):
-    @memoized
     def log_p(self, data, params):
         x = data.x
         
@@ -62,7 +56,6 @@ class PoissonDensity(Density):
         return log_poisson_pdf(x, l)
 
 class NegativeBinomialDensity(object):
-    @memoized
     def log_p(self, data, params):
         x = data.x
         
