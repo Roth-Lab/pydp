@@ -7,6 +7,14 @@ from collections import namedtuple
 
 BetaData = namedtuple('BetaData', 'x')
 
-BetaPriorData = namedtuple('BetaPriorData', ['a', 'b'])
+BetaParameter = namedtuple('BetaPriorData', ['a', 'b'])
 
 BinomialData = namedtuple('BinomialData', ['x', 'n'])
+
+GammaData = namedtuple('GammaData', 'x')
+
+GammaParameter = namedtuple('GammaParameter', ['a', 'b'])
+
+PoissonData = namedtuple('PoissonData', 'x')
+
+NegativeBinomialParameter = namedtuple('NegativeBinomialParameter', ['r', 'p'])

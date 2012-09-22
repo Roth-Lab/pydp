@@ -5,15 +5,15 @@ Created on 2012-09-21
 '''
 from __future__ import division
 
-from pydp.rvs import beta_rvs 
-from pydp.data import BetaData
+from pydp.rvs import beta_rvs, gamma_rvs
+from pydp.data import BetaData, GammaData
 
 class BaseMeasure(object):
     '''
     Base class for base measures.
     '''
     def __init__(self, params):
-        pass
+        self.params = params
     
     def random(self):
         '''
@@ -21,11 +21,14 @@ class BaseMeasure(object):
         '''
         pass
     
-class BetaBaseMeasure(object):
-    def __init__(self, params):
-        self.params = params
-    
+class BetaBaseMeasure(BaseMeasure):
     def random(self):
         x = beta_rvs(self.params.a, self.params.a)
         
         return BetaData(x)
+    
+class GammaBaseMeasure(BaseMeasure):
+    def random(self):
+        x = gamma_rvs(self.params.a, self.params.b)
+        
+        return GammaData(x)

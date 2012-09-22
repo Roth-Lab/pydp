@@ -7,9 +7,9 @@ from __future__ import division
 
 from math import log
 
-from pydp.rvs import beta_rvs, uniform_rvs
+from pydp.rvs import beta_rvs, gamma_rvs, uniform_rvs
 
-from pydp.data import BetaData
+from pydp.data import BetaData, GammaData
 
 class AtomSampler(object):
     '''
@@ -82,3 +82,23 @@ class BetaBinomialGibbsAtomSampler(AtomSampler):
                 b += data[item].n - data[item].x
             
             cell.value = BetaData(beta_rvs(a, b))
+
+class GammaPoissonGibbsAtomSampler(AtomSampler):
+    '''
+    Update the partition values using a Gibbs step. 
+    
+    Requires a Gamma base measure and Poisson data.
+    '''  
+    def sample(self, data, partition):
+        for cell in partition.cells:
+            a = self.base_measure.params.a
+                        
+            for item in cell.items:
+                a += data[item].x
+            
+            n = cell.size
+            b = self.base_measure.params.b
+            
+            b = b / (n * b + 1)
+            
+            cell.value = GammaData(gamma_rvs(a, b))

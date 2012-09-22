@@ -3,7 +3,9 @@ Created on 2012-09-21
 
 @author: Andrew Roth
 '''
-from math import exp, log
+from __future__ import division
+
+from math import log
 
 from random import betavariate as beta_rvs, gammavariate as gamma_rvs, normalvariate as normal_rvs, \
     uniform as uniform_rvs
@@ -102,3 +104,25 @@ def discrete_rvs(p):
             break
     
     return i
+
+def poisson_rvs(l):
+    u = uniform_rvs(0, 1)
+    log_u = log(u)    
+    
+    i = 0
+    
+    log_l = log(l)
+    
+    log_p = -l
+    
+    log_F = log_p
+    
+    while True:
+        if log_u < log_F:
+            return i
+        
+        log_p += log_l - log(i + 1)
+        
+        log_F = log_sum_exp([log_F, log_p])
+        
+        i += 1
