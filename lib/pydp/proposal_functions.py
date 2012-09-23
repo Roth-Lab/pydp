@@ -15,7 +15,7 @@ class BaseMeasureProposalFunction(object):
         self.base_measure = base_measure
     
     def random(self, params):
-        self.base_measure.random()
+        return self.base_measure.random()
 
 class BetaProposalFunction(ProposalFunction):
     def __init__(self, s):

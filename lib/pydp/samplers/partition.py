@@ -172,19 +172,19 @@ class MarginalGibbsPartitionSampler(PartitionSampler):
     '''
     Update the partition using algorithm 2 of Neal "Sampling Methods For Dirichlet Process Mixture Models".
     '''
-    def __init__(self, base_measure, cluster_density, posterior_density):
+    def __init__(self, base_measure, cluster_density, posterior_predictive_density):
         '''
         Args:
             base_measure : (BaseMeasure) Base measure for DP process.
             
             cluster_density : (Density) Cluster density for DP process.
             
-            posterior_density : (Density) Posterior density obtained by integrating the prior against the likelihood for
+            posterior_predictive_density : (Density) Posterior density obtained by integrating the prior against the likelihood for
             the model.
         '''            
         PartitionSampler.__init__(self, base_measure, cluster_density)
         
-        self.posterior_density = posterior_density
+        self.posterior_density = posterior_predictive_density
     
     def sample(self, data, partition, alpha):
         for item, data_point in enumerate(data):

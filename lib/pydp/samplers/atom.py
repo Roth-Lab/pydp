@@ -77,7 +77,7 @@ class BaseMeasureAtomSampler(MetropolisHastingsAtomSampler):
     def __init__(self, base_measure, cluster_density):
         AtomSampler.__init__(self, base_measure, cluster_density)
         
-        self.proposal_func = BaseMeasureProposalFunction()
+        self.proposal_func = BaseMeasureProposalFunction(base_measure)
     
 #=======================================================================================================================
 # Conjugate samplers
