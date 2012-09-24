@@ -4,14 +4,14 @@ from collections import namedtuple
 from math import lgamma as log_gamma
 
 from pydp.base_measures import BetaBaseMeasure
-from pydp.data import BetaData, BetaParameter
-from pydp.densities import Density, log_binomial_pdf
+from pydp.data import BetaParameter, BetaData
+from pydp.densities import Density, log_binomial_pdf, log_beta_pdf
 from pydp.partition import Partition
 from pydp.rvs import beta_rvs
-from pydp.samplers.atom import MetropolisHastingsAtomSampler, BaseMeasureAtomSampler
+from pydp.samplers.atom import BaseMeasureAtomSampler, MetropolisHastingsAtomSampler
 from pydp.samplers.concentration import GammaPriorConcentrationSampler
 from pydp.samplers.partition import AuxillaryParameterPartitionSampler
-from pydp.utils import log_sum_exp
+from pydp.utils import log_sum_exp, memoized, SimpsonsRuleIntegrator
 
 import csv
 
@@ -34,7 +34,7 @@ def main(file_name, num_iters=100000):
 
     partition_sampler = AuxillaryParameterPartitionSampler(base_measure, cluster_density)
     
-    atom_sampler = BaseMeasureAtomSampler(base_measure, cluster_density)
+    atom_sampler = MetropolisHastingsAtomSampler(base_measure, cluster_density, beta_proposal)
     
     for i in range(num_iters):
         alpha = concentration_sampler.sample(alpha, partition.number_of_cells, partition.number_of_items)
@@ -45,18 +45,6 @@ def main(file_name, num_iters=100000):
         
         if i % 100 == 0:
             print alpha, sorted([param.x  for param in partition.cell_values])   
-
-def beta_proposal(params):
-    s = 10
-    m = params.x
-    
-    a = s * m
-    b = s - a
-    
-    a += 1
-    b += 1
-    
-    return BetaData(beta_rvs(a, b))
 
 PyCloneData = namedtuple('PyCloneData', ['a', 'd', 'mu_r', 'mu_v', 'log_pi_r', 'log_pi_v'])
 
@@ -84,17 +72,41 @@ def load_pyclone_data(file_name):
         log_pi_r = get_log_mix_weights(delta_r)
         log_pi_v = get_log_mix_weights(delta_v)
         
-        data.append(PyCloneData(a, d, mu_r, mu_v, log_pi_r, log_pi_v))
+        data.append(PyCloneData(a, d, tuple(mu_r), tuple(mu_v), tuple(log_pi_r), tuple(log_pi_v)))
 
     return data
 
+def beta_proposal(params):
+    s = 10
+    m = params.x
+    
+    a = s * m
+    b = s - a
+    
+    a += 1
+    b += 1
+    
+    return BetaData(beta_rvs(a, b))
+
 class PyCloneDensity(Density):
-    def log_p(self, data, params):
+    def __init__(self):
+        self.s = 100
+        
+        self.integrator = SimpsonsRuleIntegrator()
+    
+    @memoized
+    def log_p(self, data, params):        
         ll = []
         
         for mu_r, log_pi_r in zip(data.mu_r, data.log_pi_r):
             for mu_v, log_pi_v in zip(data.mu_v, data.log_pi_v):
-                temp = log_pi_r + log_pi_v + self._log_binomial_likelihood(data.a, data.d, params.x, mu_r, mu_v)
+                a = mu_v * self.s
+                b = self.s - a
+                
+                log_f = lambda x: self._log_binomial_likelihood(data.a, data.d, params.x, mu_r, x) + \
+                                  log_beta_pdf(x, a, b)
+                
+                temp = log_pi_r + log_pi_v + self.integrator.log_integrate(log_f)
                 
                 ll.append(temp)
         

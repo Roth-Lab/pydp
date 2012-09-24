@@ -6,52 +6,136 @@ from pydp.densities import BinomialDensity, BetaBinomialDensity
 
 from pydp.partition import Partition
 
-from pydp.rvs import binomial_rvs
+from pydp.rvs import binomial_rvs, gamma_rvs
 
 
-from pydp.samplers.atom import BetaBinomialGibbsAtomSampler
+from pydp.samplers.atom import BetaBinomialGibbsAtomSampler, BaseMeasureAtomSampler
 from pydp.samplers.concentration import GammaPriorConcentrationSampler
 from pydp.samplers.partition import MarginalGibbsPartitionSampler, AuxillaryParameterPartitionSampler, \
     MetropolisGibbsPartitionSampler
+    
+from pydp.tests.simulators import sample_from_crp
 
-num_iters = 10000
-n = 1000
-data = []
+from pydp.diagnostics import geweke_convergence_test, geweke_joint_distribution_test
 
-for i in range(100):
-    x = binomial_rvs(n, 0.5)
-    data.append(BinomialData(x, n))
+class Sampler(object):
+    def __init__(self, base_measure, cluster_density):
+        self.base_measure = base_measure
+        
+        self.cluster_density = cluster_density
+        
+        self.concentration_sampler = GammaPriorConcentrationSampler(1, 1)
+        
+        posterior_density = BetaBinomialDensity()
+        
+#        self.partition_sampler = MarginalGibbsPartitionSampler(base_measure, cluster_density, posterior_density)
+        self.partition_sampler = AuxillaryParameterPartitionSampler(base_measure, cluster_density)
+        
+        self.atom_sampler = BetaBinomialGibbsAtomSampler(base_measure, cluster_density)
+#        self.atom_sampler = BaseMeasureAtomSampler(base_measure, cluster_density)
+            
+    def sample(self, alpha, partition, data):        
+#        alpha = self.concentration_sampler.sample(alpha, partition.number_of_cells, partition.number_of_items)
+        
+#        self.partition_sampler.sample(data, partition, alpha)
+        
+        self.atom_sampler.sample(data, partition)
+        
+        return alpha, partition
 
-for i in range(50):
-    x = binomial_rvs(n, 0.6)
-    data.append(BinomialData(x, n))
+def draw_data(params, n):
+    data = []
+    
+    for p in params:
+        x = binomial_rvs(n, p)
+        
+        data.append(BinomialData(x, n))
+    
+    return data
 
-alpha = 1
+def draw_from_prior(base_measure, size):
+    alpha = gamma_rvs(1, 1)
+    
+#    partition = sample_from_crp(alpha, size, base_measure)
+    
+    partition = Partition()
+    
+    partition.add_cell(base_measure.random())
+    
+    for item in range(size):
+        partition.add_item(item, 0)
+    
+    return alpha, partition
 
-base_measure = BetaBaseMeasure(BetaParameter(1, 1))
+#=======================================================================================================================
+# Simulators
+#=======================================================================================================================
+def marginal_conditional_simulator(base_measure, n, size, num_iters): 
+    params = []
+    
+    for _ in range(num_iters):
+        alpha, partition = draw_from_prior(base_measure, size) 
+        
+        data_params = [value.x for value in partition.item_values]
+        
+        params.append({
+                       'alpha' : alpha,
+                       'p' : data_params
+                       })
+        
+#        draw_data(data_params, n)
+    
+    return params
+
+def successive_conditional_simulator(base_measure, cluster_density, n, size, num_iters):
+    params = []
+    
+    sampler = Sampler(base_measure, cluster_density)
+    
+    alpha, partition = draw_from_prior(base_measure, size)
+    
+    for _ in range(num_iters):
+        data = draw_data([param.x for param in partition.item_values], n)
+        
+        alpha, partition = sampler.sample(alpha, partition, data)
+        
+        params.append({
+                       'alpha' : alpha,
+                       'p' : [value.x for value in partition.item_values]
+                       })
+                
+    return params
+
+size = 10
+n = 100
+
+num_iters = int(2e5)
+burnin = int(1e5)
+thin = int(100)
+
+base_measure = BetaBaseMeasure(1, 1)
 
 cluster_density = BinomialDensity()
 
-partition = Partition()
+params_1 = marginal_conditional_simulator(base_measure, n, size, num_iters)
+#params_2 = marginal_conditional_simulator(base_measure, n, size, num_iters)
 
-for item, data_point in enumerate(data):
-    partition.add_cell(base_measure.random())
-    partition.add_item(item, item)
+#params_1 = successive_conditional_simulator(base_measure, cluster_density, n, size, num_iters)
+params_2 = successive_conditional_simulator(base_measure, cluster_density, n, size, num_iters)
 
-concentration_sampler = GammaPriorConcentrationSampler(1, 1)
+#trace_1 = [x['alpha'] for x in params_1][burnin::thin]
+#trace_2 = [x['alpha'] for x in params_2][burnin::thin]
+#
+#print compare_trace(trace_1, trace_2, lambda x: x)
+#print compare_trace(trace_1, trace_2, lambda x: x ** 2)
 
-posterior_density = BetaBinomialDensity()
-partition_sampler = MarginalGibbsPartitionSampler(base_measure, cluster_density, posterior_density)
-
-atom_sampler = BetaBinomialGibbsAtomSampler(base_measure, cluster_density)
-
-for i in range(num_iters):
-    alpha = concentration_sampler.sample(alpha, partition.number_of_cells, partition.number_of_items)
+for i in range(size):
+    trace_1 = [x['p'][i] for x in params_1][burnin::thin]
+    trace_2 = [x['p'][i] for x in params_2][burnin::thin]
     
-    partition_sampler.sample(data, partition, alpha)
+    print
+    print geweke_convergence_test(trace_2)
+    print
     
-    atom_sampler.sample(data, partition)
-    
-    if i % 100 == 0:
-        print alpha, partition.cell_values
-
+    print geweke_joint_distribution_test(trace_1, trace_2, lambda x: x)
+    print geweke_joint_distribution_test(trace_1, trace_2, lambda x: x ** 2)

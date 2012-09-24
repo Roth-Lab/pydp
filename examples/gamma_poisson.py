@@ -28,7 +28,7 @@ for i in range(50):
 
 alpha = 1
 
-base_measure = GammaBaseMeasure(GammaParameter(1, 1))
+base_measure = GammaBaseMeasure(1, 1)
 
 cluster_density = PoissonDensity()
 
