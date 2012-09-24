@@ -53,17 +53,20 @@ class MetropolisHastingsAtomSampler(AtomSampler):
     
     def sample(self, data, partition):
         for cell in partition.cells:
+            old_param = cell.value
+            new_param = self.proposal_func.random(old_param)            
+
             old_ll = 0
             new_ll = 0
-            
-            old_param = cell.value
-            new_param = self.proposal_func.random(old_param)
-            
+
             for j in cell.items:
                 old_ll += self.cluster_density.log_p(data[j], old_param)
                 new_ll += self.cluster_density.log_p(data[j], new_param)
             
-            log_ratio = new_ll - old_ll
+            log_numerator = new_ll + self.proposal_func.log_p(old_param, new_param)
+            log_denominator = old_ll + self.proposal_func.log_p(new_param, old_param)
+            
+            log_ratio = log_numerator - log_denominator
             
             u = uniform_rvs(0, 1)
             
