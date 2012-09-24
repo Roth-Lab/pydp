@@ -3,7 +3,10 @@ Created on 2012-09-23
 
 @author: Andrew Roth
 '''
-from math import erf, sqrt
+from __future__ import division
+
+from math import erf, log, sqrt, gamma
+from sympy.functions.special.gamma_functions import lowergamma
 
 #=======================================================================================================================
 # Descriptive Statistics
@@ -145,5 +148,37 @@ def two_sample_z_score(x, y, expected_mean_x=0, expected_mean_y=0):
 #=======================================================================================================================
 # Density Related Functions
 #=======================================================================================================================
-def inverse_normal_cdf(x):
+def normal_cdf(x):
     return 0.5 * (1.0 + erf(x / sqrt(2)))
+
+def chi_square_cdf(x, k):
+    return lowergamma(k / 2, x / 2) / gamma(k / 2)
+
+def inverse_normal_cdf(p):
+    if p < 0 or p > 1:
+        raise Exception('Inverse normal cdf only takes values in [0,1]')
+    elif p == 1:
+        return float('inf')
+    elif p == 0:
+        return float('-inf')
+
+    if p < 0.5:
+        return -_rational_approximation(sqrt(-2.0 * log(p)))
+    else:
+        return _rational_approximation(sqrt(-2.0 * log(1.0 - p)))
+
+def _rational_approximation(t):
+    '''
+    Helper for inverse_normal_cdf.
+    '''
+    # Abramowitz and Stegun formula 26.2.23.
+    # The absolute value of the error should be less than 4.5 e-4.
+    c = [2.515517, 0.802853, 0.010328]
+    
+    d = [1.432788, 0.189269, 0.001308]
+    
+    numerator = (c[2] * t + c[1]) * t + c[0]
+    
+    denominator = ((d[2] * t + d[1]) * t + d[0]) * t + 1.0
+    
+    return t - numerator / denominator
