@@ -8,7 +8,7 @@ from pydp.stats import inverse_normal_cdf, two_sample_z_score
 #=======================================================================================================================
 # Convergence Checking
 #=======================================================================================================================
-def geweke_z_score(trace, first=0.1, last=0.5):
+def geweke_convergence_test(trace, first=0.1, last=0.5):
     # Filter out invalid intervals
     if first + last >= 1:
         raise ValueError("Length of intervals must sum to <= 1. Values {0} and {1} sum to {2}.".format(first,
@@ -24,9 +24,9 @@ def geweke_z_score(trace, first=0.1, last=0.5):
     first_slice = trace[:end_of_first_slice]
     last_slice = trace[start_of_last_slice:]
     
-    z_score = two_sample_z_score(first_slice, last_slice)
+    z = two_sample_z_score(first_slice, last_slice)
     
-    return z_score
+    return 1 - inverse_normal_cdf(z)
 
 #=======================================================================================================================
 # Model Checking
