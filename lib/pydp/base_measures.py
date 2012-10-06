@@ -23,7 +23,7 @@ class BetaBaseMeasure(BaseMeasure):
         self.params = BetaParameter(a, b)
     
     def random(self):
-        x = beta_rvs(self.params.a, self.params.a)
+        x = beta_rvs(self.params.a, self.params.b)
         
         return BetaData(x)
     
