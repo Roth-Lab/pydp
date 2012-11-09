@@ -11,7 +11,7 @@ class ProposalFunction(object):
     def random(self, params):
         pass
 
-class BaseMeasureProposalFunction(object):
+class BaseMeasureProposalFunction(ProposalFunction):
     def __init__(self, base_measure):
         self.base_measure = base_measure
         
