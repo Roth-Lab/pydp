@@ -1,0 +1,5 @@
+
+syntax: regexp
+^examples/data$
+syntax: regexp
+^dist$
