@@ -5,7 +5,7 @@ Created on 2012-09-21
 '''
 from __future__ import division
 
-from math import log, lgamma as log_gamma
+from math import log, lgamma as log_gamma, pi
 
 from pydp.data import GammaParameter, NegativeBinomialParameter
 
@@ -87,7 +87,10 @@ def log_binomial_pdf(x, n, p):
 
 def log_negative_binomial(x, r, p):
     return log_binomial_coefficient(x + r - 1 , x) + r * log(1 - p) + x * log(p)
-    
+
+def log_normal_pdf(x, mu, sigma2):
+    return -1 / 2 * log(2 * pi * sigma2) - (x - mu) ** 2 / (2 * sigma2)
+
 def log_poisson_pdf(x, l):
     return x * log(l) - l - log_factorial(x)
 
