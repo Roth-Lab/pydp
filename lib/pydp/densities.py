@@ -83,6 +83,18 @@ def log_beta_binomial_pdf(x, n, a, b):
     return log_binomial_coefficient(n, x) + log_beta(a + x, b + n - x) - log_beta(a, b)
 
 def log_binomial_pdf(x, n, p):
+    if p == 0:
+        if x == 0:
+            return 1
+        else:
+            return float('-inf')
+    
+    if p == 1:
+        if x == n:
+            return 1
+        else:
+            return float('-inf')
+    
     return log_binomial_coefficient(n, x) + x * log(p) + (n - x) * log(1 - p)
 
 def log_negative_binomial(x, r, p):
