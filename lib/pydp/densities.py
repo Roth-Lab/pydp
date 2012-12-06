@@ -85,13 +85,13 @@ def log_beta_binomial_pdf(x, n, a, b):
 def log_binomial_pdf(x, n, p):
     if p == 0:
         if x == 0:
-            return 1
+            return 0
         else:
             return float('-inf')
     
     if p == 1:
         if x == n:
-            return 1
+            return 0
         else:
             return float('-inf')
     
