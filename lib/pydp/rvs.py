@@ -105,6 +105,36 @@ def discrete_rvs(p):
     
     return i
 
+def multinomial_rvs(n, p):
+    x = [0 for _ in range(n)]
+    
+    if len(p) / n > 1:
+        for _ in range(n):
+            index = discrete_rvs(p)
+            
+            x[index] += 1
+    else:
+        total = 0
+        denom = 1
+        
+        for i, p_i in enumerate(p):
+            if p_i <= 0:
+                continue
+            
+            # Need min to avoid numeirc issues
+            p_scale = min(p_i / denom, 1)
+            
+            x[i] = binomial_rvs(n - total, p_scale)
+            
+            denom -= p_i
+            
+            total += x[i]
+            
+            if total == n:
+                break
+            
+    return x 
+
 def poisson_rvs(l):
     u = uniform_rvs(0, 1)
     log_u = log(u)    
