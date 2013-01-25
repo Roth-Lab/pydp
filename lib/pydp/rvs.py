@@ -156,3 +156,55 @@ def poisson_rvs(l):
         log_F = log_sum_exp([log_F, log_p])
         
         i += 1
+        
+def inverse_sample_rvs(log_f, a, b, mesh_size=100):
+    '''
+    Sample from a continuous univariate density using the inverse transform method.
+    
+    Args:
+        log_f : (function) A function which computes the unnormalised of the density.
+        a : (float) Left side of the support for the denstiy.
+        b : (float) Right side of the support for the density.
+    
+    Kwargs:
+        mesh_size : (int) How many points to use to approximate the integral for computing CDF.
+    
+    Returns:
+        x : (float) Sampled value
+        log_q : (float) The value of the density at x.
+    '''    
+    u = uniform_rvs(0, 1)
+    
+    log_u = log(u)
+
+    step_size = (b - a) / mesh_size
+
+    log_step_size = log(b - a) - log(mesh_size)
+
+    knots = [i * step_size + a for i in range(0, mesh_size + 1)]
+    
+    log_likelihood = [log_f(x) for x in knots]
+    
+    log_riemann_sum = []
+    
+    for y in log_likelihood:
+        log_riemann_sum.append(y + log_step_size)
+    
+    log_norm_const = log_sum_exp(log_riemann_sum)
+    
+    log_cdf = None
+    
+    for x, y in zip(knots, log_likelihood):
+        log_q = y - log_norm_const
+        
+        log_partial_pdf_riemann_sum = log_q + log_step_size
+        
+        if log_cdf is None:
+            log_cdf = log_partial_pdf_riemann_sum
+        else:
+            log_cdf = log_sum_exp([log_cdf, log_partial_pdf_riemann_sum])
+     
+        if log_u < log_cdf:
+            break
+
+    return x, log_q        
