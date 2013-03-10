@@ -1,3 +1,16 @@
+'''
+This file is part of PyDP.
+
+PyDP is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+PyDP is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with PyDP.  If not, see
+<http://www.gnu.org/licenses/>.
+'''
+
 from pydp.base_measures import GammaBaseMeasure
 
 from pydp.data import PoissonData, GammaParameter
@@ -7,7 +20,6 @@ from pydp.densities import PoissonDensity, NegativeBinomialDensity
 from pydp.partition import Partition
 
 from pydp.rvs import poisson_rvs
-
 
 from pydp.samplers.atom import GammaPoissonGibbsAtomSampler
 from pydp.samplers.concentration import GammaPriorConcentrationSampler

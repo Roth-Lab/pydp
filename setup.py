@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
       name='PyDP',
-      version='0.1.1',
+      version='0.1.2',
       description='A Python library for implementing Dirichlet process mixture models.',
       author='Andrew Roth',
       author_email='andrewjlroth@gmail.com',
@@ -11,5 +11,7 @@ setup(
       packages=[ 
                 'pydp',
                 'pydp.samplers'
-                ]
+                ],
+      license = 'GPL v3',
+      data_files = [("", ["LICENSE.txt", 'examples/beta_binomial.py', 'examples/gamma_poisson.py'])]
      )
