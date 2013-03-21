@@ -137,7 +137,7 @@ class GaussianGammaGaussianAtomSampler(AtomSampler):
     '''
     Update the partition values using a Gibbs step. 
     
-    Requires a GammaGaussian base measure and Gaussian data.
+    Requires a GammaGaussian base measure and GammaGaussian data.
     '''  
     def sample(self, data, partition):
         for cell in partition.cells:            
