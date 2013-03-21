@@ -18,10 +18,10 @@ from __future__ import division
 
 from math import log
 
-from pydp.rvs import beta_rvs, gamma_rvs, uniform_rvs
-
-from pydp.data import BetaData, GammaData
+from pydp.data import BetaData, GammaData, GaussianGammaData
 from pydp.proposal_functions import BaseMeasureProposalFunction
+from pydp.rvs import beta_rvs, gamma_rvs, uniform_rvs, gaussian_rvs
+from pydp.stats import mean, variance
 
 class AtomSampler(object):
     '''
@@ -89,9 +89,9 @@ class BaseMeasureAtomSampler(MetropolisHastingsAtomSampler):
     Update the atom values using a Metropolis-Hastings steps with the base measure as a proposal density.
     '''
     def __init__(self, base_measure, cluster_density):
-        AtomSampler.__init__(self, base_measure, cluster_density)
+        proposal_func = BaseMeasureProposalFunction(base_measure)
         
-        self.proposal_func = BaseMeasureProposalFunction(base_measure)
+        MetropolisHastingsAtomSampler.__init__(self, base_measure, cluster_density, proposal_func)        
     
 #=======================================================================================================================
 # Conjugate samplers
@@ -132,3 +132,54 @@ class GammaPoissonGibbsAtomSampler(AtomSampler):
             b = b / (n * b + 1)
             
             cell.value = GammaData(gamma_rvs(a, b))
+
+class GaussianGammaGaussianAtomSampler(AtomSampler):
+    '''
+    Update the partition values using a Gibbs step. 
+    
+    Requires a GammaGaussian base measure and Gaussian data.
+    '''  
+    def sample(self, data, partition):
+        for cell in partition.cells:            
+            sample_size = cell.size
+            
+            sample_mean = mean([data[item].x for item in cell.items])
+            
+            sample_variance = variance([data[item].x for item in cell.items], sample=False)
+            
+            posterior_precision = self._sample_precision(sample_size, sample_mean, sample_variance)
+            
+            posterior_mean = self._sample_mean(sample_size, sample_mean, sample_variance, posterior_precision)
+
+            cell.value = GaussianGammaData(posterior_mean, posterior_precision)
+    
+    def _sample_mean(self, sample_size, sample_mean, sample_variance, tau):
+        prior_size = self.base_measure.params.size
+        
+        prior_mean = self.base_measure.params.mean
+
+        posterior_precision = prior_size * tau + sample_size * tau
+        
+        posterior_mean = (prior_size * tau * prior_mean) / posterior_precision + \
+                         (sample_size * tau * sample_mean) / posterior_precision
+                         
+        
+        return gaussian_rvs(posterior_mean, posterior_precision)
+    
+    def _sample_precision(self, sample_size, sample_mean, sample_variance):
+        prior_alpha = self.base_measure.params.alpha
+        
+        prior_beta = self.base_measure.params.beta
+        
+        prior_mean = self.base_measure.params.mean
+        
+        prior_size = self.base_measure.params.size
+        
+        posterior_alpha = prior_alpha + sample_size / 2
+        
+        posterior_beta = prior_beta + \
+                         (sample_size * sample_variance) / 2 + \
+                         ((prior_size * sample_size) / (2 * (prior_size + sample_size))) * (sample_mean - prior_mean) ** 2
+        
+        return gamma_rvs(posterior_alpha, posterior_beta)
+        

@@ -16,9 +16,9 @@ Created on 2012-09-21
 '''
 from __future__ import division
 
-from math import log
+from math import log, sqrt
 
-from random import betavariate as beta_rvs, gammavariate as gamma_rvs, normalvariate as normal_rvs, \
+from random import betavariate as beta_rvs, gammavariate as gamma_rvs, normalvariate as _normal_rvs, \
     uniform as uniform_rvs
     
 from pydp.utils import log_sum_exp
@@ -145,6 +145,18 @@ def multinomial_rvs(n, p):
                 break
             
     return x 
+
+def gaussian_rvs(mean, precision):
+    '''
+    Draw a random variable from a univariate Gaussian (normal) distribution.
+    
+    Args:
+        mean : (float) The mean value of distribution.
+        precision: (float > 0) The precision (inverse of variance) of the distribution.
+    '''
+    std_dev = 1 / sqrt(precision)
+    
+    return _normal_rvs(mean, std_dev)
 
 def poisson_rvs(l):
     u = uniform_rvs(0, 1)

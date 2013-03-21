@@ -26,6 +26,12 @@ GammaData = namedtuple('GammaData', 'x')
 
 GammaParameter = namedtuple('GammaParameter', ['a', 'b'])
 
+GaussianData = namedtuple('GaussianData', 'x')
+
+GaussianGammaData = namedtuple('GaussianGammaData', ['mean', 'precision'])
+
+GaussianGammaParameter = namedtuple('GaussianGammaParameter', ['mean', 'size', 'alpha', 'beta'])
+
 PoissonData = namedtuple('PoissonData', 'x')
 
 NegativeBinomialParameter = namedtuple('NegativeBinomialParameter', ['r', 'p'])

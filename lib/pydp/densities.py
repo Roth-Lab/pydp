@@ -58,6 +58,15 @@ class BinomialDensity(Density):
         
         return log_binomial_pdf(x, n, p)
 
+class GaussianDensity(Density):
+    def log_p(self, data, params):
+        x = data.x
+        
+        mean = params.mean        
+        precision = params.precision
+        
+        return log_gaussian_pdf(x, mean, precision)      
+
 class PoissonDensity(Density):
     def log_p(self, data, params):
         x = data.x
@@ -77,7 +86,7 @@ class NegativeBinomialDensity(object):
             r = params.a
             p = 1 / (1 + params.b)
         else:
-            raise Exception("BetaParameter does not accept parameters of type {0}.".format(type(params)))
+            raise Exception("NegativeBinomialDensity does not accept parameters of type {0}.".format(type(params)))
             
         return log_negative_binomial(x, r, p)
 
@@ -107,6 +116,14 @@ def log_binomial_pdf(x, n, p):
             return float('-inf')
     
     return log_binomial_coefficient(n, x) + x * log(p) + (n - x) * log(1 - p)
+
+def log_gamma_pdf(x, a, b):
+    return -log_gamma(a) - a * log(b) + (a - 1) * log(x) - x / b
+
+def log_gaussian_pdf(x, mean, precision):
+    sigma2 = 1 / precision
+    
+    return log_normal_pdf(x, mean, sigma2)
 
 def log_negative_binomial(x, r, p):
     return log_binomial_coefficient(x + r - 1 , x) + r * log(1 - p) + x * log(p)

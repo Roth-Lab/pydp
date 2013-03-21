@@ -27,7 +27,7 @@ class BaseMeasureProposalFunction(ProposalFunction):
         self.base_measure = base_measure
         
     def log_p(self, data, params):
-        return 0
+        return self.base_measure.log_p(data)
     
     def random(self, params):
         return self.base_measure.random()

@@ -16,22 +16,32 @@ Created on 2012-09-21
 '''
 from __future__ import division
 
-from pydp.data import BetaData, BetaParameter, GammaData, GammaParameter
-from pydp.rvs import beta_rvs, gamma_rvs
+from pydp.data import BetaData, BetaParameter, GammaData, GammaParameter, GaussianGammaParameter, GaussianGammaData
+from pydp.rvs import beta_rvs, gamma_rvs, gaussian_rvs
+from pydp.densities import log_beta_pdf, log_gamma_pdf, log_gaussian_pdf
 
 class BaseMeasure(object):
     '''
     Base class for base measures.
     '''
+    def log_p(self, data, params):
+        '''
+        Return the log probability of the density.
+        '''
+        raise NotImplemented
+    
     def random(self):
         '''
         Return a random sample from the base measure.
         '''
-        pass
+        raise NotImplemented
     
 class BetaBaseMeasure(BaseMeasure):
     def __init__(self, a, b):
         self.params = BetaParameter(a, b)
+        
+    def log_p(self, data, params):
+        return log_beta_pdf(data.x, params.a, params.b)      
     
     def random(self):
         x = beta_rvs(self.params.a, self.params.b)
@@ -46,3 +56,23 @@ class GammaBaseMeasure(BaseMeasure):
         x = gamma_rvs(self.params.a, self.params.b)
         
         return GammaData(x)
+
+class GaussianGammaBaseMeasure(BaseMeasure):
+    def __init__(self, mean, size, alpha, beta):
+        self.params = GaussianGammaParameter(mean, size, alpha, beta)
+    
+    def log_p(self, data):
+        log_p_mean = log_gaussian_pdf(data.mean, self.params.mean, self.params.size * data.precision) 
+        
+        log_p_precision = log_gamma_pdf(data.precision, self.params.alpha, self.params.beta)
+        
+        return log_p_mean + log_p_precision
+        
+    def random(self):
+        precision = gamma_rvs(self.params.alpha, self.params.beta)
+        
+        mean = gaussian_rvs(self.params.mean, self.params.size * precision)
+        
+        return GaussianGammaData(mean, precision)
+    
+       
