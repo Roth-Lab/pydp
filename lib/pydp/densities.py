@@ -118,7 +118,7 @@ def log_binomial_pdf(x, n, p):
     return log_binomial_coefficient(n, x) + x * log(p) + (n - x) * log(1 - p)
 
 def log_gamma_pdf(x, a, b):
-    return -log_gamma(a) - a * log(b) + (a - 1) * log(x) - x / b
+    return -log_gamma(a) + a * log(b) + (a - 1) * log(x) - b * x
 
 def log_gaussian_pdf(x, mean, precision):
     sigma2 = 1 / precision

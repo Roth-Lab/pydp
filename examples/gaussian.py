@@ -43,11 +43,11 @@ class Sampler(object):
 size = 10
 n = 100
 
-num_iters = int(1e3)
+num_iters = int(1e4)
 burnin = int(1e1)
 thin = int(1)
 
-data = [GaussianData(gaussian_rvs(-100, 100)) for _ in range(10)] + [GaussianData(gaussian_rvs(100, 100)) for _ in range(10)] 
+data = [GaussianData(gaussian_rvs(-100, 2)) for _ in range(100)] + [GaussianData(gaussian_rvs(100, 100)) for _ in range(100)] 
 
 base_measure = GaussianGammaBaseMeasure(0, 1, 1, 1)
 

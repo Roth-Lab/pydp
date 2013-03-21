@@ -18,7 +18,7 @@ from __future__ import division
 
 from math import log, sqrt
 
-from random import betavariate as beta_rvs, gammavariate as gamma_rvs, normalvariate as _normal_rvs, \
+from random import betavariate as beta_rvs, gammavariate as _gamma_rvs, normalvariate as _normal_rvs, \
     uniform as uniform_rvs
     
 from pydp.utils import log_sum_exp
@@ -115,6 +115,18 @@ def discrete_rvs(p):
             break
     
     return i
+
+def gamma_rvs(a, b):
+    '''
+                        a ** b    x ** (a - 1) * math.exp(-x * b)
+            pdf(x) =  ----------------- 
+                      math.gamma(a) 
+    '''
+    shape = a
+    
+    scale = 1 / b
+    
+    return _gamma_rvs(shape, scale)
 
 def multinomial_rvs(n, p):
     x = [0 for _ in range(n)]
