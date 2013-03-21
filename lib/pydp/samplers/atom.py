@@ -182,4 +182,3 @@ class GaussianGammaGaussianAtomSampler(AtomSampler):
                          ((prior_size * sample_size) / (2 * (prior_size + sample_size))) * (sample_mean - prior_mean) ** 2
         
         return gamma_rvs(posterior_alpha, posterior_beta)
-        

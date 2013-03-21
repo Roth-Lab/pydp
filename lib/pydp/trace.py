@@ -81,5 +81,3 @@ class MemoryTrace(Trace):
         self.labels.append(state['labels'])
         
         self.params.append(state['params'])
-
-                

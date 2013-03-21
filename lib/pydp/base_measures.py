@@ -80,5 +80,3 @@ class GaussianGammaBaseMeasure(BaseMeasure):
         mean = gaussian_rvs(self.params.mean, self.params.size * precision)
         
         return GaussianGammaData(mean, precision)
-    
-       
