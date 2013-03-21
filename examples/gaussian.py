@@ -2,7 +2,7 @@ from pydp.base_measures import GaussianGammaBaseMeasure
 from pydp.data import GaussianData
 from pydp.densities import GaussianDensity
 from pydp.rvs import gaussian_rvs
-from pydp.trace import MemoryTrace
+from pydp.trace import DiskTrace, MemoryTrace
 
 from pydp.samplers.atom import GaussianGammaGaussianAtomSampler
 from pydp.samplers.dp import DirichletProcessSampler
@@ -11,9 +11,11 @@ from pydp.samplers.partition import AuxillaryParameterPartitionSampler
 size = 10
 n = 100
 
-num_iters = int(1e2)
+num_iters = int(1e4)
 burnin = int(1e1)
 thin = int(1)
+
+trace_dir = '/home/andrew/Desktop/trace_test'
 
 data = [GaussianData(gaussian_rvs(-100, 2)) for _ in range(100)] + [GaussianData(gaussian_rvs(100, 100)) for _ in range(100)] 
 
@@ -27,8 +29,10 @@ partition_sampler = AuxillaryParameterPartitionSampler(base_measure, cluster_den
 
 sampler = DirichletProcessSampler(atom_sampler, partition_sampler)
 
-trace = MemoryTrace()
+trace = DiskTrace(trace_dir, ['alpha', 'labels', 'mean'])
+
+trace.open('w')
 
 sampler.sample(data, trace, num_iters)
 
-print [x.mean for x in trace.params[-1]]
+trace.close()

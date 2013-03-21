@@ -1,4 +1,15 @@
 '''
+This file is part of PyDP.
+
+PyDP is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+PyDP is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with PyDP.  If not, see
+<http://www.gnu.org/licenses/>.
+
 Created on 2012-05-10
 
 @author: Andrew
@@ -9,9 +20,54 @@ import os
 
 class Trace(object):
     def update(self, state):
-        pass
+        raise NotImplemented
+
+class DiskTrace(object):
+    def __init__(self, trace_dir, params):
+        self.trace_dir = trace_dir
+        
+        self.trace_files = {}
+        
+        self.params = params 
+        
+        for param_name in self.params:
+            if not os.path.exists(trace_dir):
+                os.makedirs(trace_dir)
+            
+            self.trace_files[param_name] = os.path.join(trace_dir, "{0}.tsv.bz2".format(param_name))
+            
+        self._fhs = {}
+        
+        self._writers = {}
     
-class MemoryTrace(object):
+    def close(self):
+        for param_name in self.params:
+            self._fhs[param_name].close()
+            
+            del self._fhs[param_name]
+            
+            del self._writers[param_name]
+    
+    def open(self, mode='r'):
+        for param_name in self.params:
+            self._fhs[param_name] = bz2.BZ2File(self.trace_files[param_name], mode)
+            
+            self._writers[param_name] = csv.writer(self._fhs[param_name], delimiter='\t')
+
+    def update(self, state):
+        for param_name in self.params:
+            if param_name == 'alpha':
+                row = [state['alpha'], ]
+            
+            elif param_name == 'labels':
+                row = state['labels']
+            
+            else:
+                row = [getattr(x, param_name) for x in state['params']]
+            
+            self._writers[param_name].writerow(row)
+
+class MemoryTrace(Trace):
     def __init__(self):
         self.alpha = []
         
@@ -25,60 +81,5 @@ class MemoryTrace(object):
         self.labels.append(state['labels'])
         
         self.params.append(state['params'])
-            
 
-#class TraceDB(object):
-#    def __init__(self, out_dir, mutations):
-#        if os.path.exists(out_dir):
-#            raise Exception("{0} exists, cannot overwrite.".format(out_dir))
-#    
-#        if not os.path.exists(os.path.dirname(os.path.abspath(out_dir))):
-#            raise Exception("Folder {0} does not exist to create pyclone file in.".format(os.path.dirname(out_dir)))
-#        
-#        os.makedirs(out_dir)
-#  
-#        self._open_files(out_dir)
-#        
-#        self._frequencies_writer.writerow(mutations)
-#        
-#        self._labels_writer.writerow(mutations)
-#
-#    def _open_files(self, out_dir):
-#        '''
-#        Load the shelve db object if it exists, otherwise initialise.
-#        '''
-#        mode = 'w'
-#        
-#        self._alpha_file = bz2.BZ2File(os.path.join(out_dir, 'alpha.tsv.bz2'), mode)
-#        
-#        self._frequencies_file = bz2.BZ2File(os.path.join(out_dir, 'cellular_frequencies.tsv.bz2'), mode)
-#        
-#        self._labels_file = bz2.BZ2File(os.path.join(out_dir, 'labels.tsv.bz2'), mode)
-#        
-#        self._phi_file = bz2.BZ2File(os.path.join(out_dir, 'phi.tsv.bz2'), mode)        
-#
-#        self._alpha_writer = csv.writer(self._alpha_file, delimiter='\t')
-#            
-#        self._frequencies_writer = csv.writer(self._frequencies_file, delimiter='\t')
-#        
-#        self._labels_writer = csv.writer(self._labels_file, delimiter='\t')
-#            
-#        self._phi_writer = csv.writer(self._phi_file, delimiter='\t')
-#        
-#    def update_trace(self, state):
-#        self._alpha_writer.writerow([state['alpha'], ])
-#        
-#        self._frequencies_writer.writerow(state['cellular_frequencies'])
-#        
-#        self._labels_writer.writerow(state['labels'])
-#        
-#        self._phi_writer.writerow(state['phi'])
-#
-#    def close(self):
-#        self._alpha_file.close()
-#        
-#        self._frequencies_file.close()
-#        
-#        self._labels_file.close()
-#        
-#        self._phi_file.close()
+                
