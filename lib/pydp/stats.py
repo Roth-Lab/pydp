@@ -17,7 +17,6 @@ Created on 2012-09-23
 from __future__ import division
 
 from math import erf, log, sqrt, gamma
-from sympy.functions.special.gamma_functions import lowergamma
 
 #=======================================================================================================================
 # Descriptive Statistics
@@ -163,6 +162,8 @@ def normal_cdf(x):
     return 0.5 * (1.0 + erf(x / sqrt(2)))
 
 def chi_square_cdf(x, k):
+    from sympy.functions.special.gamma_functions import lowergamma
+    
     return lowergamma(k / 2, x / 2) / gamma(k / 2)
 
 def inverse_normal_cdf(p):
