@@ -23,7 +23,7 @@ class Trace(object):
         raise NotImplemented
 
 class DiskTrace(object):
-    def __init__(self, trace_dir, params, column_names=None):
+    def __init__(self, trace_dir, params, column_names=None, file_name_map=None):
         self.trace_dir = trace_dir
         
         self.trace_files = {}
@@ -35,8 +35,11 @@ class DiskTrace(object):
         if not os.path.exists(trace_dir):
             os.makedirs(trace_dir)
         
-        for param_name in self.params:            
-            self.trace_files[param_name] = os.path.join(trace_dir, "{0}.tsv.bz2".format(param_name))
+        for param_name in self.params:
+            if file_name_map is not None and param_name in file_name_map:
+                self.trace_files[param_name] = os.path.join(trace_dir, "{0}.tsv.bz2".format(file_name_map[param_name]))
+            else:
+                self.trace_files[param_name] = os.path.join(trace_dir, "{0}.tsv.bz2".format(param_name))
             
         self._fhs = {}
         
@@ -46,18 +49,21 @@ class DiskTrace(object):
         for param_name in self.params:
             self._fhs[param_name].close()
             
-            del self._fhs[param_name]
+        self._fhs = {}
             
-            del self._writers[param_name]
+        self._writers = {}
     
     def open(self, mode='r'):
         for param_name in self.params:
             self._fhs[param_name] = bz2.BZ2File(self.trace_files[param_name], mode)
             
-            self._writers[param_name] = csv.writer(self._fhs[param_name], delimiter='\t')
-            
-            if self.column_names is not None and param_name != 'alpha':
-                self._writers[param_name].writerow(self.column_names)
+            if mode == 'w':
+                self._writers[param_name] = csv.writer(self._fhs[param_name], delimiter='\t')
+                
+                if self.column_names is not None and param_name != 'alpha':
+                    self._writers[param_name].writerow(self.column_names)
+            else:
+                raise Exception('Only writing to the trace object is currently supported.')
 
     def update(self, state):
         for param_name in self.params:

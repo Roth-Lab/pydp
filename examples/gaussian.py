@@ -29,7 +29,7 @@ partition_sampler = AuxillaryParameterPartitionSampler(base_measure, cluster_den
 
 sampler = DirichletProcessSampler(atom_sampler, partition_sampler)
 
-trace = DiskTrace(trace_dir, ['alpha', 'labels', 'mean'])
+trace = DiskTrace(trace_dir, ['alpha', 'labels', 'mean'], file_name_map={'mean' : 'cellular_frequencies'})
 
 trace.open('w')
 
