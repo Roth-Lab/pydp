@@ -23,17 +23,19 @@ class Trace(object):
         raise NotImplemented
 
 class DiskTrace(object):
-    def __init__(self, trace_dir, params):
+    def __init__(self, trace_dir, params, column_names=None):
         self.trace_dir = trace_dir
         
         self.trace_files = {}
         
-        self.params = params 
+        self.params = params
         
-        for param_name in self.params:
-            if not os.path.exists(trace_dir):
-                os.makedirs(trace_dir)
-            
+        self.column_names = column_names
+        
+        if not os.path.exists(trace_dir):
+            os.makedirs(trace_dir)
+        
+        for param_name in self.params:            
             self.trace_files[param_name] = os.path.join(trace_dir, "{0}.tsv.bz2".format(param_name))
             
         self._fhs = {}
@@ -53,6 +55,9 @@ class DiskTrace(object):
             self._fhs[param_name] = bz2.BZ2File(self.trace_files[param_name], mode)
             
             self._writers[param_name] = csv.writer(self._fhs[param_name], delimiter='\t')
+            
+            if self.column_names is not None and param_name != 'alpha':
+                self._writers[param_name].writerow(self.column_names)
 
     def update(self, state):
         for param_name in self.params:
