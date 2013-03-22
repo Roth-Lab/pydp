@@ -10,10 +10,27 @@ PyDP is licensed under the GPL v3, see the LICENSE.txt file for details.
 
 # Versions
 
-### 0.1.2
+## 0.1.3
 
-* Added GPL  license informtation.
+* Added code for Gaussian models.
 
-# Dependencies
+* Added wrapper class for DP sampler. 
 
-None
+## 0.1.2
+
+* Added GPL license informtation.
+
+# Installation
+
+Installation is the standard `python setup.py install`.
+
+## Dependencies
+
+### Required
+
+* None
+
+### Optional
+
+* [SymPy](http://sympy.org/en/index.html) >= 0.7.1 - Used for some of the diagnostic tools to compute the chi-square 
+													 distribution.

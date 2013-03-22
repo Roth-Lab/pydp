@@ -1,0 +1,2 @@
+include examples/gaussian.py
+include LICENSE.txt
