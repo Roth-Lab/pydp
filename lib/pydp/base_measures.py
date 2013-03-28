@@ -75,7 +75,7 @@ class GaussianGammaBaseMeasure(BaseMeasure):
         return log_p_mean + log_p_precision
         
     def random(self):
-        precision = gamma_rvs(self.params.alpha, self.params.beta)
+        precision = gamma_rvs(self.params.alpha, self.params.beta) + 1e-10
         
         mean = gaussian_rvs(self.params.mean, self.params.size * precision)
         
