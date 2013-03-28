@@ -10,6 +10,10 @@ PyDP is licensed under the GPL v3, see the LICENSE.txt file for details.
 
 # Versions
 
+## 0.1.4
+
+* Fixed underflow issue in precision update for Gaussian model.
+
 ## 0.1.3
 
 * Added code for Gaussian models.
