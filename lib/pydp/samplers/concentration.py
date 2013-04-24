@@ -40,8 +40,8 @@ class GammaPriorConcentrationSampler(ConcentrationSampler):
     def __init__(self, a, b):
         '''
         Args :
-            a : (float) Location parameter of the gamma prior.
-            b : (float) Scale parameter of the gamma prior.
+            a : (float) Shape parameter of the gamma prior.
+            b : (float) Rate parameter of the gamma prior.
         '''
         self.a = a
         self.b = b
@@ -61,7 +61,7 @@ class GammaPriorConcentrationSampler(ConcentrationSampler):
     
         label = discrete_rvs([pi, 1 - pi])
         
-        scale = 1 / (b - log(eta))
+        scale = b - log(eta)
                 
         if label == 0:
             new_value = gamma_rvs(a + k, scale)

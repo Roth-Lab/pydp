@@ -10,6 +10,10 @@ PyDP is licensed under the GPL v3, see the LICENSE.txt file for details.
 
 # Versions
 
+## 0.1.5
+
+* Fixed error in concentration sampler due to using the wrong parameterisation of the gamma prior. 
+
 ## 0.1.4
 
 * Fixed underflow issue in precision update for Gaussian model.
