@@ -218,7 +218,9 @@ def inverse_sample_rvs(log_f, a, b, mesh_size=100):
 
     knots = [i * step_size + a for i in range(0, mesh_size + 1)]
     
-    log_likelihood = [log_f(x) for x in knots]
+    mid_points = [(x_l + x_r) / 2 for x_l, x_r in zip(knots[:-1], knots[1:])]
+
+    log_likelihood = [log_f(x) for x in mid_points]
     
     log_riemann_sum = []
     
@@ -229,7 +231,7 @@ def inverse_sample_rvs(log_f, a, b, mesh_size=100):
     
     log_cdf = None
     
-    for x, y in zip(knots, log_likelihood):
+    for x, y in zip(mid_points, log_likelihood):
         log_q = y - log_norm_const
         
         log_partial_pdf_riemann_sum = log_q + log_step_size
@@ -242,4 +244,4 @@ def inverse_sample_rvs(log_f, a, b, mesh_size=100):
         if log_u < log_cdf:
             break
 
-    return x, log_q        
+    return x, log_q
