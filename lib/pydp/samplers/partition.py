@@ -197,7 +197,7 @@ class SequentiallyAllocatedMergeSplitSampler(PartitionSampler):
         c_j = labels[j]
         
         new_partition = old_partition.copy()
-        
+
         if c_i == c_j:
             c = c_i
             
@@ -213,10 +213,10 @@ class SequentiallyAllocatedMergeSplitSampler(PartitionSampler):
             reverse_log_p = self._compute_partition_log_p(old_cell, data)
 
         else:
-            old_cell_i = new_partition.cells[c_i]
-            old_cell_j = new_partition.cells[c_j]
+            cell_i = new_partition.cells[c_i]
+            cell_j = new_partition.cells[c_j]
             
-            new_cell, forward_log_q, reverse_log_q = self._merge(old_cell_i, old_cell_j, data, new_partition)
+            new_cell, forward_log_q, reverse_log_q = self._merge(cell_i, cell_j, data, new_partition)
             
             forward_log_p = self._compute_partition_log_p(new_cell, data)
             
