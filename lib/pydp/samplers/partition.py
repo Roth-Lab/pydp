@@ -16,8 +16,8 @@ Created on 2012-09-21
 '''
 from __future__ import division
 
-from math import exp, log
-from random import shuffle
+from math import exp, log, lgamma as log_gamma
+from random import sample, shuffle
 
 from pydp.rvs import discrete_rvs, uniform_rvs
 from pydp.utils import log_space_normalise
@@ -176,6 +176,219 @@ class MetropolisGibbsPartitionSampler(PartitionSampler):
         
         partition.remove_empty_cells()
 
+class SequentiallyAllocatedMergeSplitSampler(PartitionSampler):
+    def __init__(self, base_measure, cluster_density, proposal_func=None):        
+        PartitionSampler.__init__(self, base_measure, cluster_density)
+        
+        if proposal_func is None:
+            self.proposal_func = base_measure
+        else:
+            self.proposal_func = proposal_func
+    
+    def sample(self, data, old_partition, alpha):
+        items = range(len(data))
+        
+        i, j = sample(items, 2)
+        
+        labels = old_partition.labels
+        
+        c_i = labels[i]
+        
+        c_j = labels[j]
+        
+        new_partition = old_partition.copy()
+        
+        if c_i == c_j:
+            c = c_i
+            
+            old_cell = new_partition.cells[c]
+            
+            new_cell_i, new_cell_j, forward_log_q, reverse_log_q = self._split(i, j, old_cell, data, new_partition)
+            
+            forward_log_p = self._compute_partition_log_p(new_cell_i, data) + \
+                            self._compute_partition_log_p(new_cell_j, data)
+                            
+            old_cell = old_partition.cells[c]
+                            
+            reverse_log_p = self._compute_partition_log_p(old_cell, data)
+
+        else:
+            old_cell_i = new_partition.cells[c_i]
+            old_cell_j = new_partition.cells[c_j]
+            
+            new_cell, forward_log_q, reverse_log_q = self._merge(old_cell_i, old_cell_j, data, new_partition)
+            
+            forward_log_p = self._compute_partition_log_p(new_cell, data)
+            
+            old_cell_i = old_partition.cells[c_i]
+            old_cell_j = old_partition.cells[c_j]
+            
+            reverse_log_p = self._compute_partition_log_p(old_cell_i, data) + \
+                            self._compute_partition_log_p(old_cell_j, data)
+        
+        forward_log_prior = self._compute_prior_log_p(alpha, new_partition)        
+        reverse_log_prior = self._compute_prior_log_p(alpha, old_partition)
+                
+        forward_log_ratio = forward_log_p + forward_log_prior - forward_log_q        
+        reverse_log_ratio = reverse_log_p + reverse_log_prior - reverse_log_q
+
+        log_ratio = forward_log_ratio - reverse_log_ratio
+
+        u = uniform_rvs(0, 1)
+        
+        if log_ratio >= log(u):
+            print "accepted"
+            
+            old_partition.cells = new_partition.cells
+        else:
+#             print "rejected"
+#             print forward_log_p - reverse_log_p, forward_log_q - reverse_log_q
+            pass
+
+    def _merge(self, old_cell_i, old_cell_j, data, partition):
+        s_i = old_cell_i.items     
+        s_j = old_cell_j.items
+        
+        param_i = old_cell_i.value
+        param_j = old_cell_j.value
+        
+        param_new = param_i
+
+        forward_log_q = self.proposal_func.log_p(param_new, param_i)
+        reverse_log_q = self.proposal_func.log_p(param_i, param_new) + self.proposal_func.log_p(param_j, param_new)
+        
+        new_cell = partition.add_cell(param_new)
+        
+        for k in s_i:
+            old_cell_i.remove_item(k)
+            
+            new_cell.add_item(k)
+        
+        for k in s_j:
+            old_cell_j.remove_item(k)
+            
+            new_cell.add_item(k)
+
+        temp_s_i = set([s_i.pop(), ])
+        temp_s_j = set([s_j.pop(), ])
+        
+        items = s_i + s_j
+        
+        shuffle(items)
+        
+        for k in items:
+            n_i = len(temp_s_i)
+            n_j = len(temp_s_j)
+            
+            log_p = [
+                     log(n_i) + self.cluster_density.log_p(data[k], param_i),
+                     log(n_j) + self.cluster_density.log_p(data[k], param_j)
+                     ]
+            
+            log_p = log_space_normalise(log_p)
+            
+            if k in s_i:
+                temp_s_i.add(k)
+                
+                reverse_log_q += log_p[0]
+                
+            else:
+                temp_s_j.add(k)
+                
+                reverse_log_q += log_p[1]
+        
+        partition.remove_empty_cells()
+        
+        return new_cell, forward_log_q, reverse_log_q
+    
+    def _split(self, i, j, old_cell, data, partition):
+        old_cell.remove_item(i)        
+        old_cell.remove_item(j)
+        
+        param_i = old_cell.value      
+        param_j = self.proposal_func.random(param_i)
+        
+        forward_log_q = self.proposal_func.log_p(param_i, param_i) + self.proposal_func.log_p(param_j, param_i)
+        reverse_log_q = self.proposal_func.log_p(param_i, param_i)
+        
+        new_cell_i = partition.add_cell(param_i)        
+        new_cell_j = partition.add_cell(param_j)
+        
+        new_cell_i.add_item(i)
+        new_cell_j.add_item(j)
+        
+        s = old_cell.items
+        shuffle(s)
+        
+        for k in s:
+            old_cell.remove_item(k)
+            
+            n_i = new_cell_i.size
+            n_j = new_cell_j.size
+            
+            log_p = [
+                     log(n_i) + self.cluster_density.log_p(data[k], param_i),
+                     log(n_j) + self.cluster_density.log_p(data[k], param_j)
+                     ]
+            
+            log_p = log_space_normalise(log_p)
+            
+            p = [exp(x) for x in log_p]
+            
+            c_k = discrete_rvs(p)
+            
+            if c_k == 0:                
+                new_cell_i.add_item(k)
+            else:
+                new_cell_j.add_item(k)
+            
+            forward_log_q += log_p[c_k]
+        
+        partition.remove_empty_cells()
+
+        return new_cell_i, new_cell_j, forward_log_q, reverse_log_q
+    
+    def _compute_partition_log_p(self, cell, data):
+        log_p = 0
+        
+        param = cell.value
+        
+        for item in cell.items:
+            log_p += self.cluster_density.log_p(data[item], param)
+        
+        return log_p
+    
+    def _compute_prior_log_p(self, alpha, partition):
+        log_p = partition.number_of_cells * log(alpha)
+
+        for n_c in partition.counts:
+            log_p += log_gamma(n_c)
+        
+        n = partition.number_of_items
+        
+        for i in range(1, n + 1):
+            log_p -= log_gamma(alpha + i - 1)
+        
+        return log_p
+    
+class SplitMergeAuxillaryHybridSampler(PartitionSampler):
+    def __init__(self, base_measure, cluster_density, proposal_func=None, ratio=0.1):
+        PartitionSampler.__init__(self, base_measure, cluster_density)
+        
+        self.ratio = ratio
+        
+        self.auxillary_sampler = AuxillaryParameterPartitionSampler(base_measure, cluster_density)
+        
+        self.split_merge_sampler = SequentiallyAllocatedMergeSplitSampler(base_measure, cluster_density, proposal_func)
+    
+    def sample(self, data, partition, alpha):
+        u = uniform_rvs(0, 1)
+        
+        if u < self.ratio:
+            self.auxillary_sampler.sample(data, partition, alpha)
+        else:
+            self.split_merge_sampler.sample(data, partition, alpha)
+        
 #=======================================================================================================================
 # Conjugate Samplers
 #=======================================================================================================================
