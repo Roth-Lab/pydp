@@ -52,7 +52,11 @@ class Partition(object):
         return sum(self.counts)
         
     def add_cell(self, value):
-        self.cells.append(PartitionCell(value))
+        cell = PartitionCell(value)
+        
+        self.cells.append(cell)
+        
+        return cell
     
     def add_item(self, item, cell_index):
         self.cells[cell_index].add_item(item)
