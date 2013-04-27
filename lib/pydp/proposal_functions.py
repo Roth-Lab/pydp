@@ -19,8 +19,11 @@ from pydp.rvs import beta_rvs
 from pydp.densities import log_beta_pdf
 
 class ProposalFunction(object):
+    def log_p(self, data, params):
+        raise NotImplemented
+    
     def random(self, params):
-        pass
+        raise NotImplemented
 
 class BaseMeasureProposalFunction(ProposalFunction):
     def __init__(self, base_measure):
