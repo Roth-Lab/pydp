@@ -16,22 +16,45 @@ Created on 2012-09-21
 '''
 from __future__ import division
 
+from collections import OrderedDict
 from math import log, lgamma as log_gamma, pi
 
 from pydp.data import GammaParameter, NegativeBinomialParameter
 
 class Density(object):
+    def __init__(self, params=None):
+        self.params = params  
+        
+        self.cache = OrderedDict()
+        
+        self.max_cache_size = 10000
+    
     def log_p(self, data, params):
         '''
         Args:
             data : (nametuple) Data for density.
             
             params : (nametuple) Parameters in density.
+        
+        Kwargs:
+            global_params: (namedtuple) Parameters which are shared across all atoms. If this is None it will use the
+                                        current value.
         '''
-        pass
+        key = (data, params, self.params)
+        
+        if key not in self.cache:
+            self.cache[key] = self._log_p(data, params)
+             
+            if len(self.cache) > self.max_cache_size:
+                self.cache.popitem(last=False)
+         
+        return self.cache[key]
+
+    def _log_p(self, data, params):
+        raise NotImplemented
 
 class BetaDensity(Density):
-    def log_p(self, data, params):
+    def _log_p(self, data, params):
         x = data.x
         
         a = params.a
@@ -40,7 +63,7 @@ class BetaDensity(Density):
         return log_beta_pdf(x, a, b)
 
 class BetaBinomialDensity(Density):
-    def log_p(self, data, params):
+    def _log_p(self, data, params):
         x = data.x
         n = data.n
         
@@ -50,7 +73,7 @@ class BetaBinomialDensity(Density):
         return log_beta_binomial_pdf(x, n, a, b) 
 
 class BinomialDensity(Density):
-    def log_p(self, data, params):
+    def _log_p(self, data, params):
         x = data.x
         n = data.n
         
@@ -59,7 +82,7 @@ class BinomialDensity(Density):
         return log_binomial_pdf(x, n, p)
 
 class GaussianDensity(Density):
-    def log_p(self, data, params):
+    def _log_p(self, data, params):
         x = data.x
         
         mean = params.mean        
@@ -68,7 +91,7 @@ class GaussianDensity(Density):
         return log_gaussian_pdf(x, mean, precision)      
 
 class PoissonDensity(Density):
-    def log_p(self, data, params):
+    def _log_p(self, data, params):
         x = data.x
         
         l = params.x
@@ -76,7 +99,7 @@ class PoissonDensity(Density):
         return log_poisson_pdf(x, l)
 
 class NegativeBinomialDensity(object):
-    def log_p(self, data, params):
+    def _log_p(self, data, params):
         x = data.x
         
         if isinstance(params, NegativeBinomialParameter):
