@@ -27,7 +27,7 @@ atom_sampler = GaussianGammaGaussianAtomSampler(base_measure, cluster_density)
 
 partition_sampler = AuxillaryParameterPartitionSampler(base_measure, cluster_density)
 
-sampler = DirichletProcessSampler(atom_sampler, partition_sampler)
+sampler = DirichletProcessSampler(atom_sampler, partition_sampler, alpha_priors={'shape' : 1, 'rate' : 1})
 
 trace = DiskTrace(trace_dir, ['alpha', 'labels', 'mean'], file_name_map={'mean' : 'cellular_frequencies'})
 
