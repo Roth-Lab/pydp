@@ -36,18 +36,25 @@ class AtomSampler(object):
         '''
         self.base_measure = base_measure
         
-        self.cluster_density = cluster_density    
+        self.cluster_density = cluster_density
     
     def sample(self, data, partition):
         '''
-        Sample a new partition of the data. The partition passed in will be updated in place.
+        Sample a new value for atoms in the partition. The partition passed in will be updated in place.
         
         Args:
             data : (list) List of data points appropriate for cluster_density.
             
             partition : (Partition) Partition of dp.
         '''
-        pass
+        for cell in partition.cells:
+            cell.value = self.sample_atom(data, cell)
+    
+    def sample_atom(self, data, cell):
+        '''
+        Sample a new value for the atom associated with the cell. Returns a suitable value for the cell.
+        '''
+        raise NotImplemented
 
 #=======================================================================================================================
 # Non-conjugate samplers
@@ -62,27 +69,28 @@ class MetropolisHastingsAtomSampler(AtomSampler):
         
         self.proposal_func = proposal_func
     
-    def sample(self, data, partition):
-        for cell in partition.cells:
-            old_param = cell.value
-            new_param = self.proposal_func.random(old_param)            
+    def sample_atom(self, data, cell):
+        old_param = cell.value
+        new_param = self.proposal_func.random(old_param)            
 
-            old_ll = 0
-            new_ll = 0
+        old_ll = self.base_measure.log_p(old_param)
+        new_ll = self.base_measure.log_p(new_param)
 
-            for j in cell.items:
-                old_ll += self.cluster_density.log_p(data[j], old_param)
-                new_ll += self.cluster_density.log_p(data[j], new_param)
-            
-            log_numerator = new_ll + self.proposal_func.log_p(old_param, new_param)
-            log_denominator = old_ll + self.proposal_func.log_p(new_param, old_param)
-            
-            log_ratio = log_numerator - log_denominator
-            
-            u = uniform_rvs(0, 1)
-            
-            if log_ratio >= log(u):
-                cell.value = new_param
+        for j in cell.items:
+            old_ll += self.cluster_density.log_p(data[j], old_param)
+            new_ll += self.cluster_density.log_p(data[j], new_param)
+        
+        forward_log_ratio = new_ll - self.proposal_func.log_p(new_param, old_param)
+        reverse_log_ratio = old_ll - self.proposal_func.log_p(old_param, new_param)
+        
+        log_ratio = forward_log_ratio - reverse_log_ratio
+        
+        u = uniform_rvs(0, 1)
+        
+        if log_ratio >= log(u):
+            return new_param
+        else:
+            return old_param
 
 class BaseMeasureAtomSampler(MetropolisHastingsAtomSampler):
     '''
@@ -102,16 +110,15 @@ class BetaBinomialGibbsAtomSampler(AtomSampler):
     
     Requires a Beta base measure and binomial data.
     '''  
-    def sample(self, data, partition):
-        for cell in partition.cells:
-            a = self.base_measure.params.a
-            b = self.base_measure.params.b
-            
-            for item in cell.items:
-                a += data[item].x
-                b += data[item].n - data[item].x
-            
-            cell.value = BetaData(beta_rvs(a, b))
+    def sample_atom(self, data, cell):
+        a = self.base_measure.params.a
+        b = self.base_measure.params.b
+        
+        for item in cell.items:
+            a += data[item].x
+            b += data[item].n - data[item].x
+        
+        return BetaData(beta_rvs(a, b))
 
 class GammaPoissonGibbsAtomSampler(AtomSampler):
     '''
@@ -119,19 +126,18 @@ class GammaPoissonGibbsAtomSampler(AtomSampler):
     
     Requires a Gamma base measure and Poisson data.
     '''  
-    def sample(self, data, partition):
-        for cell in partition.cells:
-            a = self.base_measure.params.a
-                        
-            for item in cell.items:
-                a += data[item].x
-            
-            n = cell.size
-            b = self.base_measure.params.b
-            
-            b = b / (n * b + 1)
-            
-            cell.value = GammaData(gamma_rvs(a, b))
+    def sample_atom(self, data, cell):
+        a = self.base_measure.params.a
+                    
+        for item in cell.items:
+            a += data[item].x
+        
+        n = cell.size
+        b = self.base_measure.params.b
+        
+        b = b / (n * b + 1)
+        
+        return GammaData(gamma_rvs(a, b))
 
 class GaussianGammaGaussianAtomSampler(AtomSampler):
     '''
@@ -139,19 +145,18 @@ class GaussianGammaGaussianAtomSampler(AtomSampler):
     
     Requires a GammaGaussian base measure and GammaGaussian data.
     '''  
-    def sample(self, data, partition):
-        for cell in partition.cells:            
-            sample_size = cell.size
-            
-            sample_mean = mean([data[item].x for item in cell.items])
-            
-            sample_variance = variance([data[item].x for item in cell.items], sample=False)
-            
-            posterior_precision = self._sample_precision(sample_size, sample_mean, sample_variance)
-            
-            posterior_mean = self._sample_mean(sample_size, sample_mean, sample_variance, posterior_precision)
+    def sample_atom(self, data, cell):
+        sample_size = cell.size
+        
+        sample_mean = mean([data[item].x for item in cell.items])
+        
+        sample_variance = variance([data[item].x for item in cell.items], sample=False)
+        
+        posterior_precision = self._sample_precision(sample_size, sample_mean, sample_variance)
+        
+        posterior_mean = self._sample_mean(sample_size, sample_mean, sample_variance, posterior_precision)
 
-            cell.value = GaussianGammaData(posterior_mean, posterior_precision)
+        return GaussianGammaData(posterior_mean, posterior_precision)
     
     def _sample_mean(self, sample_size, sample_mean, sample_variance, tau):
         prior_size = self.base_measure.params.size
