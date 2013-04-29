@@ -14,9 +14,9 @@ Created on 2012-09-22
 
 @author: Andrew Roth
 '''
-from pydp.data import BetaData
-from pydp.rvs import beta_rvs
-from pydp.densities import log_beta_pdf
+from pydp.data import BetaData, GammaData
+from pydp.rvs import beta_rvs, gamma_rvs
+from pydp.densities import log_beta_pdf, log_gamma_pdf
 
 class ProposalFunction(object):
     def log_p(self, data, params):
@@ -60,3 +60,23 @@ class BetaProposalFunction(ProposalFunction):
         b = s - a
         
         return a, b
+    
+class GammaProposal(ProposalFunction):
+    def __init__(self, precision):
+        self.precision = precision
+    
+    def log_p(self, data, params):
+        a, b = self._get_params(params.x)
+        
+        return log_gamma_pdf(data.x, a, b)
+    
+    def random(self, params):
+        a, b = self._get_params(params.x)
+
+        return GammaData(gamma_rvs(a, b))
+    
+    def _get_params(self, x):
+        b = x * self.precision
+        a = b * x
+        
+        return a, b    
