@@ -67,5 +67,8 @@ class GammaPriorConcentrationSampler(ConcentrationSampler):
             new_value = gamma_rvs(a + k, scale)
         else:
             new_value = gamma_rvs(a + k - 1, scale)
+         
+        if new_value < 1e-100:
+            new_value = 1e-100
         
         return new_value
