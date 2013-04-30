@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
       name='PyDP',
-      version='0.1.5',
+      version='0.2.0',
       description='A Python library for implementing Dirichlet process mixture models.',
       author='Andrew Roth',
       author_email='andrewjlroth@gmail.com',

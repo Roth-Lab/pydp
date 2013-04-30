@@ -10,6 +10,16 @@ PyDP is licensed under the GPL v3, see the LICENSE.txt file for details.
 
 # Versions
 
+## 0.2.0
+
+* Changed the interface for AtomSampler to take cells instead of partitions.
+
+* Added global parameter updating.
+
+* Updated density interface to use caching.
+
+* Added some new proposal functions.
+
 ## 0.1.5
 
 * Fixed error in concentration sampler due to using the wrong parameterisation of the gamma prior. 
