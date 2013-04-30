@@ -16,7 +16,7 @@ Created on 2013-03-21
 '''
 from __future__ import division
 
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 
 from pydp.partition import Partition
 from pydp.samplers.concentration import GammaPriorConcentrationSampler
@@ -54,7 +54,7 @@ class DirichletProcessSampler(object):
                 'alpha' : self.alpha,
                 'labels' : self.partition.labels,
                 'params' : [param for param in self.partition.item_values],
-                'global_params' : self.atom_sampler.cluster_density
+                'global_params' : self.atom_sampler.cluster_density.params
                 }
     
     def initialise_partition(self, data, init_method):
