@@ -17,7 +17,6 @@ Created on 2012-09-21
 from __future__ import division
 
 from math import log, sqrt
-
 from random import betavariate as beta_rvs, gammavariate as _gamma_rvs, normalvariate as _normal_rvs, \
     uniform as uniform_rvs
     
@@ -126,7 +125,12 @@ def gamma_rvs(a, b):
     
     scale = 1 / b
     
-    return _gamma_rvs(shape, scale)
+    value = _gamma_rvs(shape, scale)
+    
+    if value < 1e-100:
+        value = 1e-100
+    
+    return value
 
 def multinomial_rvs(n, p):
     x = [0 for _ in range(n)]
