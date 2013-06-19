@@ -39,6 +39,13 @@ def bernoulli_rvs(p):
     else:
         return 0
 
+def beta_binomial_rvs(n, a, b):
+    p = beta_rvs(a, b)
+    
+    x = binomial_rvs(n, p)
+    
+    return x
+
 def binomial_rvs(n, p):
     '''
     Sample a binomial distributed random variable.
