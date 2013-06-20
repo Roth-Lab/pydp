@@ -5,3 +5,7 @@ syntax: regexp
 ^dist$
 syntax: regexp
 ^MANIFEST$
+syntax: regexp
+^\.project$
+syntax: regexp
+^\.pydevproject$
