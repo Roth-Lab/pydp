@@ -184,6 +184,9 @@ def log_poisson_pdf(x, l):
 # Helper functions
 #=======================================================================================================================
 def log_beta(a, b):
+    if a <= 0 or b <= 0:
+        return float('-inf')
+    
     return log_gamma(a) + log_gamma(b) - log_gamma(a + b)
 
 def log_binomial_coefficient(n, x):
