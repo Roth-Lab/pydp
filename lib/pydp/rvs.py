@@ -140,7 +140,7 @@ def gamma_rvs(a, b):
     return value
 
 def multinomial_rvs(n, p):
-    x = [0 for _ in range(n)]
+    x = [0 for _ in p]
     
     if len(p) / n > 1:
         for _ in range(n):

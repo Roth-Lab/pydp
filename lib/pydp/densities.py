@@ -148,6 +148,29 @@ def log_gaussian_pdf(x, mean, precision):
     
     return log_normal_pdf(x, mean, sigma2)
 
+def log_multinomial_pdf(x, p):
+    log_pdf = log_multinomial_coefficient(x)
+    
+    for x_i, p_i in zip(x, p):
+        if p_i == 0:
+            if x_i == 0:
+                log_pdf += 0
+            
+            else:
+                return float('-inf')
+        
+        if p_i == 1:
+            if x_i == sum(x):
+                log_pdf += 0
+            
+            else:
+                return float('-inf')
+                
+        
+        log_pdf += x_i * log(p_i)
+    
+    return log_pdf
+
 def log_negative_binomial(x, r, p):
     return log_binomial_coefficient(x + r - 1 , x) + r * log(1 - p) + x * log(p)
 
@@ -168,3 +191,8 @@ def log_binomial_coefficient(n, x):
 
 def log_factorial(n):
     return log_gamma(n + 1)
+
+def log_multinomial_coefficient(x):
+    n = sum(x)
+    
+    return log_factorial(n) - sum([log_factorial(x_i) for x_i in x])
