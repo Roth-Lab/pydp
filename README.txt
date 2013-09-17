@@ -10,6 +10,14 @@ PyDP is licensed under the GPL v3, see the LICENSE.txt file for details.
 
 # Versions
 
+
+## 0.2.1
+
+* Fixed a bug in concentration sampler
+
+* Fixed log_beta function to check if parameters are <= 0 and return -inf if so
+
+
 ## 0.2.0
 
 * Changed the interface for AtomSampler to take cells instead of partitions.
