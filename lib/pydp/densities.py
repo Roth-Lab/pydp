@@ -80,6 +80,16 @@ class BinomialDensity(Density):
         p = params.x
         
         return log_binomial_pdf(x, n, p)
+    
+class GammaDensity(Density):
+    def _log_p(self, data, params):
+        x = data.x
+        
+        a = params.a
+        
+        b = params.b
+        
+        return log_gamma_pdf(x, a, b)
 
 class GaussianDensity(Density):
     def _log_p(self, data, params):
