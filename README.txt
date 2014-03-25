@@ -10,6 +10,11 @@ PyDP is licensed under the GPL v3, see the LICENSE.txt file for details.
 
 # Versions
 
+## 0.2.2
+
+* Added code for vector distributions
+
+* Added code for clustering using MPEAR
 
 ## 0.2.1
 
