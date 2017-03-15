@@ -5,14 +5,15 @@ Created on 2014-03-25
 
 @author: Andrew Roth
 '''
-from scipy.cluster.hierarchy import average, fcluster
+from scipy.cluster.hierarchy import average, cut_tree
 from scipy.spatial.distance import pdist, squareform
 from scipy.special import binom
 
 import numpy as np
+import numba
 
 
-def cluster_with_mpear(X):
+def cluster_with_mpear(X, max_clusters=None):
     '''
     Args:
         X : (array) An array with as many rows as (post-burnin) MCMC iterations and columns as data points.
@@ -29,7 +30,15 @@ def cluster_with_mpear(X):
 
     best_cluster_labels = _get_flat_clustering(Z, 1)
 
-    for i in range(1, len(X) + 1):
+    if max_clusters is None:
+        max_clusters = len(X) + 1
+
+    else:
+        max_clusters = min(max_clusters, len(X))
+
+    max_clusters = max(max_clusters, 1)
+
+    for i in range(2, max_clusters + 1):
         cluster_labels = _get_flat_clustering(Z, i)
 
         pear = _compute_mpear(cluster_labels, sim_mat)
@@ -48,7 +57,7 @@ def _get_flat_clustering(Z, number_of_clusters):
     if number_of_clusters == N:
         return np.arange(1, N + 1)
 
-    return fcluster(Z, number_of_clusters, criterion='maxclust')
+    return np.squeeze(cut_tree(Z, n_clusters=number_of_clusters))
 
 
 def _compute_mpear(cluster_labels, sim_mat):
@@ -73,6 +82,7 @@ def _compute_mpear(cluster_labels, sim_mat):
     return num / den
 
 
+@numba.jit(cache=True, nopython=True)
 def _get_indicator_matrix(cluster_labels):
     N = len(cluster_labels)
 
