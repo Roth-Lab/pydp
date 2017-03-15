@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import find_packages, setup
 
 setup(
       name='PyDP',
@@ -8,9 +8,6 @@ setup(
       author_email='andrewjlroth@gmail.com',
       url='https://bitbucket.org/aroth85/pydp',
       package_dir = {'': 'lib'},    
-      packages=[ 
-                'pydp',
-                'pydp.samplers'
-                ],
+      packages=find_packages(),
       license = 'GPL v3'
      )
