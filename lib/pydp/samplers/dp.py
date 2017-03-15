@@ -64,26 +64,26 @@ class DirichletProcessSampler(object):
             
         Kwargs:
             method : (str) Initialisation method to use. 
-                           - 'separate' will allocate each data point to a separate partition.
-                           - 'together' will allocate all data points to the same partition.
+                           - 'disconnected' will allocate each data point to a separate partition.
+                           - 'connected' will allocate all data points to the same partition.
         '''
         
         self.partition = Partition()
         
-        if init_method == 'separate':
+        if init_method == 'disconnected':
             for item, _ in enumerate(data):
                 self.partition.add_cell(self.partition_sampler.base_measure.random())
                 
                 self.partition.add_item(item, item)
         
-        elif init_method == 'together':
+        elif init_method == 'connected':
             self.partition.add_cell(self.partition_sampler.base_measure.random())
             
             for item, _ in enumerate(data):                
                 self.partition.add_item(item, 0)
                  
     
-    def sample(self, data, trace, num_iters, init_method='separate', print_freq=100):
+    def sample(self, data, trace, num_iters, init_method='disconnected', print_freq=100):
         self.initialise_partition(data, init_method)
         
         for i in range(num_iters):
