@@ -69,6 +69,11 @@ class Partition(object):
             if cell.value == value:
                 return cell
 
+    def get_cell_index(self, item):
+        for cell_index, cell in enumerate(self.cells):
+            if item in cell:
+                return cell_index
+
     def remove_item(self, item, cell_index):
         self.cells[cell_index].remove_item(item)
 

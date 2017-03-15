@@ -67,7 +67,7 @@ class AuxillaryParameterPartitionSampler(PartitionSampler):
         for item in items:
             data_point = data[item]
 
-            old_cell_index = partition.labels[item]
+            old_cell_index = partition.get_cell_index(item)
 
             partition.remove_item(item, old_cell_index)
 
