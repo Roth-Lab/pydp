@@ -20,63 +20,71 @@ from pydp.data import BetaData, BetaParameter, GammaData, GammaParameter, Gaussi
 from pydp.rvs import beta_rvs, gamma_rvs, gaussian_rvs
 from pydp.densities import log_beta_pdf, log_gamma_pdf, log_gaussian_pdf
 
+
 class BaseMeasure(object):
     '''
     Base class for base measures.
     '''
+
     def log_p(self, data):
         '''
         Return the log probability of the density.
-        
+
         Args:
             data : An data object of the same type as returned by self.random()
         '''
         raise NotImplemented
-    
+
     def random(self):
         '''
         Return a random sample from the base measure.
         '''
         raise NotImplemented
-    
+
+
 class BetaBaseMeasure(BaseMeasure):
+
     def __init__(self, a, b):
         self.params = BetaParameter(a, b)
-        
+
     def log_p(self, data):
-        return log_beta_pdf(data.x, self.params.a, self.params.b)      
-    
+        return log_beta_pdf(data.x, self.params.a, self.params.b)
+
     def random(self):
         x = beta_rvs(self.params.a, self.params.b)
-        
+
         return BetaData(x)
-    
+
+
 class GammaBaseMeasure(BaseMeasure):
+
     def __init__(self, a, b):
         self.params = GammaParameter(a, b)
-    
+
     def log_p(self, data):
         return log_gamma_pdf(data.x, self.params.a, self.params.b)
-    
+
     def random(self):
         x = gamma_rvs(self.params.a, self.params.b)
-        
+
         return GammaData(x)
 
+
 class GaussianGammaBaseMeasure(BaseMeasure):
+
     def __init__(self, mean, size, alpha, beta):
         self.params = GaussianGammaParameter(mean, size, alpha, beta)
-    
+
     def log_p(self, data):
         log_p_precision = log_gamma_pdf(data.precision, self.params.alpha, self.params.beta)
-        
-        log_p_mean = log_gaussian_pdf(data.mean, self.params.mean, self.params.size * data.precision) 
-        
+
+        log_p_mean = log_gaussian_pdf(data.mean, self.params.mean, self.params.size * data.precision)
+
         return log_p_mean + log_p_precision
-        
+
     def random(self):
         precision = gamma_rvs(self.params.alpha, self.params.beta) + 1e-10
-        
+
         mean = gaussian_rvs(self.params.mean, self.params.size * precision)
-        
+
         return GaussianGammaData(mean, precision)
