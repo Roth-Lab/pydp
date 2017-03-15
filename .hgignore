@@ -11,3 +11,5 @@ syntax: regexp
 ^\.pydevproject$
 syntax: regexp
 .*egg-info.*
+syntax: regexp
+.*__pycache__.*
