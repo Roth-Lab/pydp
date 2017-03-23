@@ -7,7 +7,6 @@ setup(
       author='Andrew Roth',
       author_email='andrewjlroth@gmail.com',
       url='https://bitbucket.org/aroth85/pydp',
-      package_dir = {'': 'lib'},    
       packages=find_packages(),
       license = 'GPL v3'
      )
