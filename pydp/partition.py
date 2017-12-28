@@ -32,6 +32,7 @@ class Partition(object):
     @property
     def item_values(self):
         cell_values = self.cell_values
+
         labels = self.labels
 
         return [cell_values[i] for i in labels]

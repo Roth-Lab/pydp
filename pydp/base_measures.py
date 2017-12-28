@@ -56,14 +56,14 @@ class BetaBaseMeasure(BaseMeasure):
 
 class GammaBaseMeasure(BaseMeasure):
 
-    def __init__(self, a, b):
-        self.params = GammaParameter(a, b)
+    def __init__(self, shape, rate):
+        self.params = GammaParameter(shape, rate)
 
     def log_p(self, data):
-        return log_gamma_pdf(data.x, self.params.a, self.params.b)
+        return log_gamma_pdf(data.x, self.params.shape, self.params.rate)
 
     def random(self):
-        x = gamma_rvs(self.params.a, self.params.b)
+        x = gamma_rvs(self.params.shape, self.params.rate)
 
         return GammaData(x)
 

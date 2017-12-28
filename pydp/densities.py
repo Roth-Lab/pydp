@@ -30,16 +30,15 @@ class Density(object):
         self.max_cache_size = 10000
 
     def log_p(self, data, params):
-        '''
-        Args:
-            data : (nametuple) Data for density.
+        """ Log pdf of density
 
-            params : (nametuple) Parameters in density.
-
-        Kwargs:
-            global_params: (namedtuple) Parameters which are shared across all atoms. If this is None it will use the
-                                        current value.
-        '''
+        Parameters
+        ----------
+        data : namedtuple
+            Data for density.
+        params : namedtuple
+            nametuple Parameters in density.
+        """
         key = (data, params, self.params)
 
         if key not in self.cache:
@@ -51,7 +50,7 @@ class Density(object):
         return self.cache[key]
 
     def _log_p(self, data, params):
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class BetaDensity(Density):

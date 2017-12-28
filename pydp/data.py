@@ -24,7 +24,7 @@ BinomialData = namedtuple('BinomialData', ['x', 'n'])
 
 GammaData = namedtuple('GammaData', 'x')
 
-GammaParameter = namedtuple('GammaParameter', ['a', 'b'])
+GammaParameter = namedtuple('GammaParameter', ['shape', 'rate'])
 
 GaussianData = namedtuple('GaussianData', 'x')
 

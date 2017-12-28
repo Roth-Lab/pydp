@@ -35,8 +35,9 @@ class DirichletProcessSampler(object):
         else:
             self.update_alpha = True
 
-            self.concentration_sampler = GammaPriorConcentrationSampler(alpha_priors['shape'],
-                                                                        alpha_priors['rate'])
+            self.concentration_sampler = GammaPriorConcentrationSampler(
+                alpha_priors['shape'], alpha_priors['rate']
+            )
 
         if global_params_sampler is None:
             self.update_global_params = False
@@ -48,6 +49,8 @@ class DirichletProcessSampler(object):
 
         self.num_iters = 0
 
+        self.partition = None
+
     @property
     def state(self):
         return {
@@ -57,21 +60,44 @@ class DirichletProcessSampler(object):
             'global_params': self.atom_sampler.cluster_density.params
         }
 
-    def initialise_partition(self, data, init_method):
-        '''
-        Args:
-            data : (list) Data points.
-
-        Kwargs:
-            method : (str) Initialisation method to use. 
-                           - 'disconnected' will allocate each data point to a separate partition.
-                           - 'connected' will allocate all data points to the same partition.
-        '''
+    @state.setter
+    def state(self, value):
+        self.alpha = value['alpha']
 
         self.partition = Partition()
 
+        cell_idx = 0
+
+        label_to_cell = {}
+
+        for item, (label, param) in enumerate(zip(value['labels'], value['params'])):
+            if label not in label_to_cell:
+                label_to_cell[label] = cell_idx
+
+                cell_idx += 1
+
+                self.partition.add_cell(param)
+
+            self.partition.add_item(item, label_to_cell[label])
+
+        self.atom_sampler.cluster_density.params = value['global_params']
+
+    def initialise_partition(self, init_method, num_data_points):
+        """ Initialize the partition of data points.
+
+        Parameters
+        ----------
+        init_method: str
+            How to initialise the partition. Options are `connected` which puts all data points in the same cluster or
+                `disconnected` which puts them all data points in separate clusters.
+        num_data_points: int
+            Number of data points in the partition.
+
+        """
+        self.partition = Partition()
+
         if init_method == 'disconnected':
-            for item, _ in enumerate(data):
+            for item in range(num_data_points):
                 self.partition.add_cell(self.partition_sampler.base_measure.random())
 
                 self.partition.add_item(item, item)
@@ -79,7 +105,7 @@ class DirichletProcessSampler(object):
         elif init_method == 'connected':
             self.partition.add_cell(self.partition_sampler.base_measure.random())
 
-            for item, _ in enumerate(data):
+            for item in range(num_data_points):
                 self.partition.add_item(item, 0)
 
     def sample(self, data, trace, num_iters, init_method='disconnected', print_freq=100):
