@@ -10,9 +10,6 @@ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Pub
 You should have received a copy of the GNU General Public License along with PyDP.  If not, see
 <http://www.gnu.org/licenses/>.
 '''
-
-from __future__ import division
-
 from pydp.base_measures import BetaBaseMeasure
 
 from pydp.data import BinomialData, BetaParameter
@@ -126,8 +123,8 @@ for _ in range(num_replicates):
     
     q = q / len(posterior)
     
-    print q, inverse_normal_cdf(q), observed_p, mean(posterior)
+    print(q, inverse_normal_cdf(q), observed_p, mean(posterior))
     
     test_stat.append(inverse_normal_cdf(q) ** 2)
     
-print 1 - chi_square_cdf(sum(test_stat), len(test_stat))
+print(1 - chi_square_cdf(sum(test_stat), len(test_stat)))

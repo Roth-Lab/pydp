@@ -11,6 +11,6 @@ for i in range(1000000):
 
     x /= 2
 
-    print x
+    print(x)
 
     log(x)

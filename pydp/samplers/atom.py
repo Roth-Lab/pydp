@@ -14,8 +14,6 @@ Created on 2012-09-21
 
 @author: Andrew Roth
 '''
-from __future__ import division
-
 from math import log
 
 from pydp.data import BetaData, GammaData, GaussianGammaData

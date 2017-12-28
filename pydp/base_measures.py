@@ -14,8 +14,6 @@ Created on 2012-09-21
 
 @author: Andrew Roth
 '''
-from __future__ import division
-
 from pydp.data import BetaData, BetaParameter, GammaData, GammaParameter, GaussianGammaParameter, GaussianGammaData
 from pydp.rvs import beta_rvs, gamma_rvs, gaussian_rvs
 from pydp.densities import log_beta_pdf, log_gamma_pdf, log_gaussian_pdf

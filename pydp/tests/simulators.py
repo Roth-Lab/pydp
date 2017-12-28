@@ -14,8 +14,6 @@ Created on 2012-09-18
 
 @author: andrew
 '''
-from __future__ import division
-
 from pydp.partition import Partition
 from pydp.rvs import discrete_rvs
 

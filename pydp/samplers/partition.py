@@ -14,8 +14,6 @@ Created on 2012-09-21
 
 @author: Andrew Roth
 '''
-from __future__ import division
-
 from math import exp, log, lgamma as log_gamma
 from random import sample, shuffle
 
@@ -60,7 +58,7 @@ class AuxillaryParameterPartitionSampler(PartitionSampler):
         '''
         Sample a new partition according to algorithm 8 of Neal "Sampling Methods For Dirichlet Process Mixture Models"
         '''
-        items = range(len(data))
+        items = list(range(len(data)))
 
         shuffle(items)
 
@@ -195,7 +193,7 @@ class SequentiallyAllocatedMergeSplitSampler(PartitionSampler):
             self.proposal_func = proposal_func
 
     def sample(self, data, old_partition, alpha):
-        items = range(len(data))
+        items = list(range(len(data)))
 
         i, j = sample(items, 2)
 
@@ -246,7 +244,7 @@ class SequentiallyAllocatedMergeSplitSampler(PartitionSampler):
         u = uniform_rvs(0, 1)
 
         if log_ratio >= log(u):
-            print "accepted"
+            print("accepted")
 
             old_partition.cells = new_partition.cells
         else:

@@ -67,5 +67,5 @@ for i in range(num_iters):
     atom_sampler.sample(data, partition)
     
     if i % 100 == 0:
-        print alpha, partition.cell_values
+        print(alpha, partition.cell_values)
 

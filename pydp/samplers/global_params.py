@@ -14,8 +14,6 @@ Created on 2013-04-27
 
 @author: Andrew Roth
 '''
-from __future__ import division
-
 from math import log
 
 from pydp.rvs import uniform_rvs

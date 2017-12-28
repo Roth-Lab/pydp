@@ -14,8 +14,6 @@ Created on 2013-03-21
 
 @author: Andrew Roth
 '''
-from __future__ import division
-
 from collections import OrderedDict
 
 from pydp.partition import Partition
@@ -89,16 +87,16 @@ class DirichletProcessSampler(object):
 
         for i in range(num_iters):
             if i % print_freq == 0:
-                print self.num_iters, self.partition.number_of_cells, self.alpha
+                print(self.num_iters, self.partition.number_of_cells, self.alpha)
 
                 if self.update_global_params:
                     params = self.atom_sampler.cluster_density.params
 
                     if isinstance(params, OrderedDict):
-                        print ','.join([str(x[0]) for x in self.atom_sampler.cluster_density.params.values()])
+                        print(','.join([str(x[0]) for x in list(self.atom_sampler.cluster_density.params.values())]))
 
                     elif isinstance(params, tuple):
-                        print params[0]
+                        print(params[0])
 
                     else:
                         raise Exception('Object type {0} is not a valid cluster parameter'.format(type(params)))

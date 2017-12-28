@@ -146,9 +146,9 @@ for i in range(size):
     trace_1 = [x['p'][i] for x in params_1][burnin::thin]
     trace_2 = [x['p'][i] for x in params_2][burnin::thin]
     
-    print
-    print geweke_convergence_test(trace_2)
-    print
+    print()
+    print(geweke_convergence_test(trace_2))
+    print()
     
-    print geweke_joint_distribution_test(trace_1, trace_2, lambda x: x)
-    print geweke_joint_distribution_test(trace_1, trace_2, lambda x: x ** 2)
+    print(geweke_joint_distribution_test(trace_1, trace_2, lambda x: x))
+    print(geweke_joint_distribution_test(trace_1, trace_2, lambda x: x ** 2))

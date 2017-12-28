@@ -14,8 +14,6 @@ Created on 2012-09-21
 
 @author: Andrew Roth
 '''
-from __future__ import division
-
 from collections import OrderedDict
 from math import exp, isinf, log
 

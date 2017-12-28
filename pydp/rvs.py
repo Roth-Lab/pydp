@@ -14,8 +14,6 @@ Created on 2012-09-21
 
 @author: Andrew Roth
 '''
-from __future__ import division
-
 from math import log, sqrt
 from random import betavariate as beta_rvs, gammavariate as _gamma_rvs, normalvariate as _normal_rvs, \
     uniform as uniform_rvs
