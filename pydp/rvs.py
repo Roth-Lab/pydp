@@ -188,6 +188,10 @@ def gaussian_rvs(mean, precision):
     return _normal_rvs(mean, std_dev)
 
 
+def normal_rvs(mean, precision):
+    return gaussian_rvs(mean, precision)
+
+
 def poisson_rvs(l):
     u = uniform_rvs(0, 1)
     log_u = log(u)
