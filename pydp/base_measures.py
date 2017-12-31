@@ -31,13 +31,13 @@ class BaseMeasure(object):
         Args:
             data : An data object of the same type as returned by self.random()
         '''
-        raise NotImplemented
+        raise NotImplementedError
 
     def random(self):
         '''
         Return a random sample from the base measure.
         '''
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class BetaBaseMeasure(BaseMeasure):
