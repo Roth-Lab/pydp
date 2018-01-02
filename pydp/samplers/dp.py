@@ -80,7 +80,7 @@ class DirichletProcessSampler(object):
 
             self.partition.add_item(item, label_to_cell[label])
 
-        self.atom_sampler.cluster_density.params = value['global_params']
+        self.atom_sampler.cluster_density.params = value.get('global_params', None)
 
     def initialise_partition(self, init_method, num_data_points):
         """ Initialize the partition of data points.
