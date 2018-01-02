@@ -23,7 +23,7 @@ class VectorAtomSampler(AtomSampler):
 
            cluster_density : (VectorDensity) Emission density of clusters.
 
-           atom_samplers : (dict) Mapping of dimension ID to atom sampler. 
+           atom_samplers : (dict) Mapping of dimension ID to atom sampler.
         '''
         AtomSampler.__init__(self, base_measure, cluster_density)
 

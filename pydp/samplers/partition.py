@@ -415,8 +415,8 @@ class MarginalGibbsPartitionSampler(PartitionSampler):
 
             cluster_density : (Density) Cluster density for DP process.
 
-            posterior_predictive_density : (Density) Posterior density obtained by integrating the prior against the likelihood for
-            the model.
+            posterior_predictive_density : (Density) Posterior density obtained by integrating the prior against the
+            likelihood for the model.
         '''
         PartitionSampler.__init__(self, base_measure, cluster_density)
 

@@ -54,7 +54,7 @@ class AtomSampler(object):
         '''
         Sample a new value for the atom associated with the cell. Returns a suitable value for the cell.
         '''
-        raise NotImplemented
+        raise NotImplementedError
 
 #=======================================================================================================================
 # Non-conjugate samplers
@@ -113,7 +113,7 @@ class BaseMeasureAtomSampler(MetropolisHastingsAtomSampler):
 
 class BetaBinomialGibbsAtomSampler(AtomSampler):
     '''
-    Update the partition values using a Gibbs step. 
+    Update the partition values using a Gibbs step.
 
     Requires a Beta base measure and binomial data.
     '''
@@ -131,7 +131,7 @@ class BetaBinomialGibbsAtomSampler(AtomSampler):
 
 class GammaPoissonGibbsAtomSampler(AtomSampler):
     '''
-    Update the partition values using a Gibbs step. 
+    Update the partition values using a Gibbs step.
 
     Requires a Gamma base measure and Poisson data.
     '''
@@ -152,7 +152,7 @@ class GammaPoissonGibbsAtomSampler(AtomSampler):
 
 class GaussianGammaGaussianAtomSampler(AtomSampler):
     '''
-    Update the partition values using a Gibbs step. 
+    Update the partition values using a Gibbs step.
 
     Requires a GammaGaussian base measure and GammaGaussian data.
     '''

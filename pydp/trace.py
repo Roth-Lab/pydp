@@ -22,7 +22,7 @@ import os
 class Trace(object):
 
     def update(self, state):
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class DiskTrace(object):

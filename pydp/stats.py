@@ -124,7 +124,7 @@ def autocovariance(x, lag=1):
 
     Args:
         x : (iterable) Values to compute autocovariance for.
-        lag : (int) Lag value to compute autocovariance with.    
+        lag : (int) Lag value to compute autocovariance with.
     '''
     if lag <= 0:
         raise Exception("Autocorrelation tag must be >= 1. Value of {0} passed.".format(lag))

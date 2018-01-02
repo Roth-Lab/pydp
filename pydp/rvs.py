@@ -111,7 +111,7 @@ def discrete_rvs(p):
         p : (list) Probabilities for each class from 0 to len(p) - 1
 
     Returns:
-        i : (int) Id of class sampled. 
+        i : (int) Id of class sampled.
     '''
     total = 0
 
@@ -129,8 +129,8 @@ def discrete_rvs(p):
 def gamma_rvs(a, b):
     '''
                         a ** b    x ** (a - 1) * math.exp(-x * b)
-            pdf(x) =  ----------------- 
-                      math.gamma(a) 
+            pdf(x) =  -----------------
+                      math.gamma(a)
     '''
     shape = a
 

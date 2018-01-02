@@ -22,10 +22,10 @@ from pydp.densities import log_beta_pdf, log_gamma_pdf
 class ProposalFunction(object):
 
     def log_p(self, data, params):
-        raise NotImplemented
+        raise NotImplementedError
 
     def random(self, params):
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class BaseMeasureProposalFunction(ProposalFunction):
