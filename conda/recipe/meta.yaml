@@ -1,0 +1,20 @@
+package:
+  name: pydp
+  version: "0.2.4"
+
+source:
+  git_rev: 0.2.4
+  git_url: git@github.com:aroth85/pydp.git
+
+requirements:
+  build:
+    - python
+
+  run:
+    - python=2.7
+    - numba
+    - numpy
+    - scipy
+
+about:
+  home: https://github.com/aroth85/pydp
