@@ -6,6 +6,10 @@ source:
   git_rev: 0.2.4
   git_url: git@github.com:aroth85/pydp.git
 
+build:
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+
 requirements:
   build:
     - python 2.7*
