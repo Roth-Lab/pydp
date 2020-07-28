@@ -4,6 +4,12 @@ PyDP is library for implementing Dirichlet Process mixture models (DPMM). The go
 implementation of various algorithms for working DPMMs. As a design choice PyDP should have no dependencies on any 
 libraries which are not supported by the [PyPy](http://pypy.org) Python interpreter. 
 
+# Installation
+
+You can install PyDP using bioconda.
+
+`conda install pydp -c bioconda`
+
 # License
 
 PyDP is licensed under the GPL v3, see the LICENSE.txt file for details.
